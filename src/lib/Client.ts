@@ -85,6 +85,8 @@ export default class Client extends Discord.Client {
             + `${this.user ? this.user.tag : "null?!"}, Ready to serve ${this.guilds.size} guilds and ${this.users.size} users\n`
             + "-----------------------------------------------------------------");
 
+            this.initCollectors();
+
             return;
         } catch (error) {
             await this._log(error);
@@ -114,7 +116,7 @@ export default class Client extends Discord.Client {
         try {
             await Promise.all(this.commands.map(async (command) => {
                 try {
-                    const params = Utils.createCommandParametersFromMessage(message, false);
+                    const params = Utils.createCommandParametersFromMessage(message, command.lowerCaseArgs);
 
                     // Check `cmd` is a valid `command.name` or `command.aliases`
                     if (command.name === params.cmd
@@ -238,14 +240,18 @@ export default class Client extends Discord.Client {
                     // Pass `client`, `utils`, and other into `collector` instance as property
                     this.setGoodies<Collector>(collector);
 
-                    // const channel = this.helper.channelsByCategoryMap
-                    //     .get(collector.channel.categoryName)
-                    //     .get(collector.channel.name);
-                    // const message = await channel.messages
-                    //     .fetch(collector.messageId);
+                    if (!collector.helper) { throw new Error("collector.helper invalid!"); }
+                    const channel = await collector
+                        .helper
+                        .getChannelByNames(collector.channel.categoryName, collector.channel.name);
+
+                    if (!channel) { throw new Error("channel not found in this.collector/client init"); }
+                    if (!(channel instanceof Discord.TextChannel)) { throw new Error("channel not a text channel"); }
+                    if (!channel.messages) { throw new Error("channel not found in collector"); }
+                    const message = await channel.messages.fetch(collector.messageId);
 
                     // Call `collector.run()` method
-                    await collector.run(new Discord.Message(this, {}, new Discord.TextChannel(this.guild ? this.guild : new Discord.Guild(this, {}), {})));
+                    await collector.run(message);
                 }
             }));
         } catch (error) {
@@ -255,7 +261,7 @@ export default class Client extends Discord.Client {
 
     public async start(): Promise<void> {
         try {
-            super.login("MzgwMzczNjU5NDkzMzM1MDQy.DZSuEg.63bsGMPQ6qkM3LdQrOXfdhzPOmI");
+            super.login(`${this.configs[this.name].botToken}`);
             return;
         } catch (error) {
             await this._log(error);
@@ -301,11 +307,10 @@ export default class Client extends Discord.Client {
 
     private setGoodies<T extends Runner>(runner: T): void {
         try {
-            console.log("Runner captured:", runner);
-            console.log("Type of runner:", typeof runner);
             runner.client = this;
             runner.utils = Utils;
             runner.helper = new Helper(this);
+            runner.helper.init();
             runner.log = new Logger(this);
             runner.log.setRunner(runner);
         // runner.channelsByCategoryMap = this.helper.channelsByCategoryMap;

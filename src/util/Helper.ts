@@ -2,7 +2,7 @@ import Discord from "discord.js";
 import Client from "../lib/Client";
 import Logger from "./Logger";
 
-enum Team {
+export enum Team {
     mystic = "mystic",
     instinct = "instinct",
     valor = "valor"
@@ -17,7 +17,7 @@ export default class Helper extends Discord.Guild {
     public readonly teamEmojiIds: Record<Team, string> = {
         mystic: "352708130297348097",
         instinct: "352708126795104256",
-        valor: "352485092599529473"
+        valor: "352708126887247872"
     };
     public teamEmojis: Record<Team, Discord.GuildEmoji | undefined> | null = null;
     public readonly teamRoleIds: Record<Team, string> = {
@@ -36,19 +36,14 @@ export default class Helper extends Discord.Guild {
         };
         this.log = client.log;
 
-        this.getTeamEmojis()
-            .then(teamEmojis => {
-                this.teamEmojis = teamEmojis;
-            })
-            .catch(e => this.log.error(e));
-        this.getTeamRoles()
-            .then(teamRoles => {
-                this.teamRoles = teamRoles;
-            })
-            .catch(e => this.log.error(e));
-
         // eslint-disable-next-line no-underscore-dangle
         this.channelsByCategoryMap = this._createChannelsByCategoryMap();
+    }
+
+    public async init(): Promise<void> {
+        this.teamEmojis = await this.getTeamEmojis();
+        this.teamRoles = await this.getTeamRoles();
+        return;
     }
 
     private _createChannelsByCategoryMap() {
@@ -88,13 +83,16 @@ export default class Helper extends Discord.Guild {
         return this.guild.channels.find(channel => channel.name === channelName);
     }
 
-    // public async getGrouppedChannelByNames(categoryName, channelName) {
-    //     // return this.guild.channels.find((channel) => {
-    //     //     const category = channel.parent;
-    //     //     return category.name === categoryName && channel.name === channelName;
-    //     // });
-    //     return this.channelsByCategoryMap.get(categoryName).get(channelName);
-    // }
+    public async getChannelByNames(categoryName: string, channelName: string): Promise<Discord.GuildChannel | undefined> {
+        if (!this.channelsByCategoryMap) {
+            throw new Error("this.channelsByCategory unavailable!");
+        }
+        const category = this.channelsByCategoryMap.get(categoryName);
+        if (!category) {
+            throw new Error(`this.channelsByCategory.get(${categoryName}) unavailable!`);
+        }
+        return category.get(channelName);
+    }
 
     public async getRoleById(roleId: string): Promise<Discord.Role | undefined> {
         if (this.guild === undefined) {
@@ -103,20 +101,27 @@ export default class Helper extends Discord.Guild {
         return this.guild.roles.get(roleId);
     }
 
-    public async getTeamRoles(): Promise<Record<Team, Discord.Role | undefined>> {
+    public async getTeamRoles(): Promise<Record<Team, Discord.Role>> {
         const [mystic, instinct, valor] = await Promise.all([
             this.getRoleById(this.teamRoleIds.mystic),
             this.getRoleById(this.teamRoleIds.instinct),
             this.getRoleById(this.teamRoleIds.valor),
         ]);
+
+        for (const [teamName, teamEmoji] of Object.entries({ mystic, instinct, valor })) {
+            if (teamEmoji === undefined) {
+                throw new Error(`Team emoji (${teamName}) could not be found (undefined).`);
+            }
+        }
+
         return {
-            mystic,
-            instinct,
-            valor,
+            mystic: mystic as Discord.Role,
+            instinct: instinct as Discord.Role,
+            valor: valor as Discord.Role,
         };
     }
 
-    public async getRoleByName(roleName: string) {
+    public getRoleByName(roleName: string): Discord.Role | undefined {
         if (this.guild === undefined) {
             throw new Error("Could not get role since guild is undefined.");
         }
@@ -148,7 +153,7 @@ export default class Helper extends Discord.Guild {
                 this.getEmojiById(this.teamEmojiIds.valor),
             ]);
 
-            for (const [teamName, teamEmoji] of Object.entries({mystic, instinct, valor})) {
+            for (const [teamName, teamEmoji] of Object.entries({ mystic, instinct, valor })) {
                 if (teamEmoji === undefined) {
                     throw new Error(`Team emoji (${teamName}) could not be found (undefined).`);
                 }
@@ -180,6 +185,15 @@ export default class Helper extends Discord.Guild {
         );
     }
 
+    public async getMemberByIdOrNameOrTag(str: string): Promise<Discord.GuildMember | undefined> {
+        return this.guild
+            ? this.guild.members
+                .find(guildMember => guildMember.id === str
+                                || guildMember.displayName === str
+                             || guildMember.user.tag === str)
+            : undefined;
+    }
+
     public async getMemberRoleById(memberIdResolvable: IdResolvable, roleIdResolvable: IdResolvable) {
         return (await this.getMemberById(
             Helper.resolveToId(memberIdResolvable),
@@ -201,6 +215,45 @@ export default class Helper extends Discord.Guild {
         const memberRoles = await this.getMemberRoles(memberIdResolvable);
         roleIdResolvablesAsArray.some(roleIdResolvable => memberRoles.has(Helper.resolveToId(roleIdResolvable)));
         return roleIdResolvablesAsArray.some(roleIdResolvableAsArray => memberRoles.has(Helper.resolveToId(roleIdResolvableAsArray)));
+    }
+
+    public async getMessageById({
+        messageId,
+        channelName,
+        categoryName
+    }: {
+        messageId: string;
+        channelName: string;
+        categoryName: string;
+    }): Promise<Discord.Message> {
+        const channelOfMsgToSend = await this.getChannelByNames(categoryName, channelName);
+        if (channelOfMsgToSend === undefined)  {
+            throw new Error(`Channel ${categoryName}.${channelName} could not be found.`);
+        }
+        if (!(channelOfMsgToSend instanceof Discord.TextChannel)) {
+            throw new Error(`Channel ${categoryName}.${channelName} is not a \`Discord.TextChannel\`.`);
+        }
+        const message = await channelOfMsgToSend.messages.fetch(messageId);
+        return message;
+    }
+
+    public async sendMessageByIdToChannel(channelToSend: Discord.TextChannel,
+        {
+            messageId,
+            channelName,
+            categoryName
+        }: {
+            messageId: string;
+            channelName: string;
+            categoryName: string;
+        }) {
+        const message = await this.getMessageById({
+            messageId,
+            channelName,
+            categoryName
+        });
+
+        await channelToSend.send(message);
     }
 }
 

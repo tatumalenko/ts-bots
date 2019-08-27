@@ -12,6 +12,7 @@ abstract class Command implements Runner {
     public description!: string;
     public runIn!: string[];
     public aliases!: string[];
+    public lowerCaseArgs!: boolean;
     public client!: Client;
     public utils!: Utils;
     public log!: Logger;
