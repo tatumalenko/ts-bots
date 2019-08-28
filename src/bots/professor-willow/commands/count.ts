@@ -5,7 +5,7 @@ import CommandParameters from "../../../lib/CommandParameters";
 export default class extends Command {
     public constructor() {
         super();
-        this.name = "count2";
+        this.name = "count";
         this.enabled = true;
         this.runIn = ["test-zone", "secret-treehouse", "moderation", "super-secret-penthouse", "bot-testing"];
         this.description = "";

@@ -21,7 +21,7 @@ enum NonPriviledgeRole {
 export default class extends Command {
     public constructor() {
         super();
-        this.name = "role2";
+        this.name = "role";
         this.enabled = true;
         this.runIn = ["test-zone", "role-management", "4200-st-laurent-raid-break", "502678237302882304", "test-zone"];
         this.description = "";
