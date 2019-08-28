@@ -38,6 +38,7 @@ export enum CollectorType {
 
 export default class Client extends Discord.Client {
     public name: string;
+    public runIn: string[];
     public configs: any;
     public utils: typeof Utils;
     public log: Logger;
@@ -52,6 +53,7 @@ export default class Client extends Discord.Client {
         super(options.discordOptions);
         this.clientOptions = options;
         this.name = options.name;
+        this.runIn = options.runIn;
         this.configs = config;
 
         // Be careful of ordering here, passing this requires
@@ -136,9 +138,9 @@ export default class Client extends Discord.Client {
                             ) { return; }
                         } else { // Check `client.runIn` values to make sure bot can run in these channels
                             // eslint-disable-next-line
-                            if (!this.configs.runIn.includes(channel.name) // `client.runIn[i] == msg.channel.name`
-                            && !this.configs.runIn.includes(channel.type) // `client.runIn[i] == 'dm'`
-                            && !this.configs.runIn.includes("all") // `client.runIn[i] == 'all'`
+                            if (!this.runIn.includes(channel.name) // `client.runIn[i] == msg.channel.name`
+                            && !this.runIn.includes(channel.type) // `client.runIn[i] == 'dm'`
+                            && !this.runIn.includes("all") // `client.runIn[i] == 'all'`
                             ) { return; }
                         }
                         // Pass `client`, `utils`, and other into `command` instance as property
