@@ -34,7 +34,10 @@ export default class extends Collector {
     public async run(message: Discord.Message): Promise<void> {
         try {
             await this.init();
-            const reactionCollector = new ReactionCollector(message, this.filter, { dispose: true });
+            const reactionCollector = new ReactionCollector(message, (): boolean => {
+                return true;
+            }, { dispose: true });
+            reactionCollector.on("collect", this.filter);
             reactionCollector.on("remove", this.remove);
         } catch (e) {
             await this.log.error(e);
