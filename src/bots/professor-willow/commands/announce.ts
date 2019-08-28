@@ -12,7 +12,7 @@ export default class extends Command {
         this.aliases = [];
         this.lowerCaseArgs = false;
     }
-    
+
     public async run(message: Discord.Message, params: CommandParameters): Promise<void>  {
         try {
             if (message.guild === null) {

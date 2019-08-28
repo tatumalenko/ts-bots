@@ -83,7 +83,7 @@ export default class Helper extends Discord.Guild {
         return this.guild.channels.find(channel => channel.name === channelName);
     }
 
-    public async getChannelByNames(categoryName: string, channelName: string): Promise<Discord.GuildChannel | undefined> {
+    public async getChannelByNames(categoryName: string, channelName: string): Promise<Discord.TextChannel | undefined> {
         if (!this.channelsByCategoryMap) {
             throw new Error("this.channelsByCategory unavailable!");
         }
@@ -91,7 +91,11 @@ export default class Helper extends Discord.Guild {
         if (!category) {
             throw new Error(`this.channelsByCategory.get(${categoryName}) unavailable!`);
         }
-        return category.get(channelName);
+        const channel = category.get(channelName);
+        if (!(channel instanceof Discord.TextChannel)) {
+            throw new Error("`message.channel instanceof Discord.TextChannel === false`");
+        }
+        return channel;
     }
 
     public async getRoleById(roleId: string): Promise<Discord.Role | undefined> {

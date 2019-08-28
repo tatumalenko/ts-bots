@@ -58,9 +58,9 @@ export default class extends Collector {
         if (!channel) {
             throw new Error(`Channel ${categoryName}.${channelName} returned undefined`);
         }
-        if (!(channel instanceof Discord.TextChannel)) {
-            throw new Error(`Channel ${channel.name} is not an instace of Discord.TextChannel`);
-        }
+        // if (!(channel instanceof Discord.TextChannel)) {
+        //     throw new Error(`Channel ${channel.name} is not an instace of Discord.TextChannel`);
+        // }
 
         if (reaction.emoji.name === "🇪") {
             const contentChannel = await this.helper.getChannelByNames("Dev", "new-welcome");
