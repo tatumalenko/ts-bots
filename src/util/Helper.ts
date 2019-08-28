@@ -83,7 +83,7 @@ export default class Helper extends Discord.Guild {
         return this.guild.channels.find(channel => channel.name === channelName);
     }
 
-    public async getChannelByNames(categoryName: string, channelName: string): Promise<Discord.TextChannel | undefined> {
+    public async getChannelByNames(categoryName: string, channelName: string): Promise<Discord.TextChannel> {
         if (!this.channelsByCategoryMap) {
             throw new Error("this.channelsByCategory unavailable!");
         }

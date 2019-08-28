@@ -14,24 +14,28 @@ export default class extends Event {
 
     public async run(message: Discord.Message): Promise<void>  {
         try {
+            const guild = message.guild;
+            if (guild === null) { throw new Error("`guild === null`"); }
             const channelToSend = await this.helper.getChannelByNames("Dev", "forbidden-truths");
-            const auditLogs = await message.guild.fetchAuditLogs({
+            const auditLogs = await guild.fetchAuditLogs({
                 type: 72,
                 limit: 100,
             });
+            const mostRecentAuditLog = auditLogs.entries.first();
+            if (mostRecentAuditLog === undefined) { throw new Error("`mostRecentAuditLog === undefined"); }
 
             const msgId = message.id;
             let msgContent = message.content;
             let msgChannel = message.channel;
             let createdWhen = message.createdAt.toString();
-            let createdBy = auditLogs.entries.first().target;
-            let deletedBy = auditLogs.entries.first().executor;
-            let deletedWhen = auditLogs.entries.first().createdAt.toString();
+            let createdBy = mostRecentAuditLog.target;
+            let deletedBy = mostRecentAuditLog.executor;
+            let deletedWhen = mostRecentAuditLog.createdAt.toString();
             let deleteType;
             let attachments;
             let imageUrl;
 
-            const isValidUrl = (maybeUrl) => {
+            const isValidUrl = (maybeUrl: string) => {
                 try {
                     const url = new URL(maybeUrl);
                     return url;
@@ -56,19 +60,22 @@ export default class extends Event {
                 deletedWhen += " (*maybe*)";
             } else { // msg is cached
                 console.log("Message is cached");
-                if (message.attachments.first()) {
+                if (message.attachments.size > 0) {
                     attachments = message.attachments.array();
-                    imageUrl = message.attachments.first().proxyURL;
+                    const firstAttachment = message.attachments.first();
+                    if (firstAttachment !== undefined) {
+                        imageUrl = firstAttachment.proxyURL;
+                    }
                 }
-                const deltaTimestamp = new Date().getTime() - new Date(auditLogs.entries.first().createdTimestamp).getTime();
+                const deltaTimestamp = new Date().getTime() - new Date(mostRecentAuditLog.createdTimestamp).getTime();
                 const deltaTimestampMinutes = deltaTimestamp / 1000 / 60;
                 if (message.author !== createdBy
                     || deltaTimestampMinutes > 1) {
                     console.log("Inconsistency found in author/createdBy or date.");
                     // can't rely on audit logs
                     // chances are deleted own message
-                    createdBy = message.author;
-                    deletedBy = createdBy;
+                    if (message.author) { createdBy = message.author; }
+                    if (createdBy instanceof Discord.User) { deletedBy = createdBy; }
                     deletedWhen = "*Inconclusive*";
                     deleteType = "Self Member Delete";
                 } else {
@@ -87,7 +94,7 @@ export default class extends Event {
             embed.addField("Content", msgContent !== "" ? msgContent : "*None*");
             if (attachments) {
                 embed.attachFiles(attachments);
-                embed.setImage(imageUrl);
+                if (imageUrl) { embed.setImage(imageUrl); }
             } else if (isValidUrl(msgContent)) {
                 const isTenorUrl = (str: string) => {
                     const url = new URL(str);
