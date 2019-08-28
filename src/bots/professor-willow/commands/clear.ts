@@ -7,7 +7,7 @@ export default class extends Command {
         super();
         this.name = "clear2";
         this.enabled = true;
-        this.runIn = [];
+        this.runIn = ["all"];
         this.description = "";
         this.aliases = [];
         this.lowerCaseArgs = false;
@@ -47,9 +47,17 @@ export default class extends Command {
             }
 
             // Default 50 most recent are loaded in cache
-            await message.channel.messages.fetch({ limit: 50 });
-            const msgsToDelete = message.channel.messages.first(Number(numberOfMsgsToClear) + 1);
-            await message.channel.bulkDelete(msgsToDelete);
+            const numberOfMsgsToDelete = Number(numberOfMsgsToClear) + 1;
+            try {
+                await message.channel.bulkDelete(numberOfMsgsToDelete);
+            } catch (error) {
+                const msgs = await message.channel.messages.fetch({ limit: 50 });
+                const msgsToDelete = msgs.first(numberOfMsgsToDelete);
+                for (const msg of msgsToDelete.values()) {
+                    await message.channel.messages.remove(msg.id);
+                }
+            }
+
             await this.log.info(`${message.author.toString()} cleared ${numberOfMsgsToClear} messages in \`${(message.channel as Discord.TextChannel).name}\`.`);
         } catch (error) {
             await message.channel.send(error.message !== "" ? error.message : "Oops, something went wrong :( @uphill");
