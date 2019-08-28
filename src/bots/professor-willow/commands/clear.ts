@@ -7,7 +7,7 @@ export default class extends Command {
         super();
         this.name = "clear2";
         this.enabled = true;
-        this.runIn = ["test-zone"];
+        this.runIn = [];
         this.description = "";
         this.aliases = [];
         this.lowerCaseArgs = false;

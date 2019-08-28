@@ -23,7 +23,7 @@ export default class extends Command {
         super();
         this.name = "role2";
         this.enabled = true;
-        this.runIn = ["test-zone"];
+        this.runIn = ["test-zone", "role-management", "4200-st-laurent-raid-break", "502678237302882304", "test-zone"];
         this.description = "";
         this.aliases = [];
         this.lowerCaseArgs = false;
