@@ -84,6 +84,7 @@ export default class extends Event {
             }
 
             const embed = new MessageEmbed();
+            embed.setColor(this.client.utils.randomColor());
             embed.addField("Type", deleteType);
             embed.addField("Message ID", msgId);
             embed.addField("Deleted When", deletedWhen);
