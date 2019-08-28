@@ -17,10 +17,10 @@ export default class extends Collector {
         this.enabled = true;
         this.type = "reaction";
         this.channel = {
-            name: "test-welcome",
-            categoryName: "Dev",
+            name: "welcome",
+            categoryName: "General",
         };
-        this.messageId = "614807483277377539";
+        this.messageId = "616167304731820083";
         this.description = "";
     }
 
@@ -58,21 +58,18 @@ export default class extends Collector {
         if (!channel) {
             throw new Error(`Channel ${categoryName}.${channelName} returned undefined`);
         }
-        // if (!(channel instanceof Discord.TextChannel)) {
-        //     throw new Error(`Channel ${channel.name} is not an instace of Discord.TextChannel`);
-        // }
 
         if (reaction.emoji.name === "🇪") {
-            const contentChannel = await this.helper.getChannelByNames("Dev", "new-welcome");
+            const contentChannel = await this.helper.getChannelByNames("Dev", "test-welcome");
             if (!(contentChannel instanceof Discord.TextChannel)) { throw new Error("Content channel for english message not found."); }
-            const msgToSend = await contentChannel.messages.fetch("614850354714116109");
+            const msgToSend = await contentChannel.messages.fetch("616001750997925898");
             if (msgToSend.content === "") { throw new Error("English message to send is not found/empty!"); }
             await user.send(msgToSend);
 
         } else if (reaction.emoji.name === "🇫") {
-            const contentChannel = await this.helper.getChannelByNames("Dev", "new-welcome");
-            if (!(contentChannel instanceof Discord.TextChannel)) { throw new Error("Content channel for english message not found."); }
-            const msgToSend = await contentChannel.messages.fetch("614851634882674689");
+            const contentChannel = await this.helper.getChannelByNames("Dev", "test-welcome");
+            if (!(contentChannel instanceof Discord.TextChannel)) { throw new Error("Content channel for french message not found."); }
+            const msgToSend = await contentChannel.messages.fetch("616001843486654464");
             if (msgToSend.content === "") { throw new Error("French message to send is not found/empty!"); }
             await user.send(msgToSend);
 
@@ -83,11 +80,11 @@ export default class extends Collector {
             }
             const member = await this.helper.getMemberById(user.id);
 
-            // get other team emojis (i.e. those that aren't the current one)
+            // Get other team emojis (i.e. those that aren't the current one)
             const otherTeamEmojis = Object.values(this.teamEmojis)
                 .filter(teamEmoji => teamEmoji.name !== reaction.emoji.name);
 
-            // get other team reactions other than current one attempted
+            // Get other team reactions other than current one attempted
             const otherTeamMsgReactions = await reaction.message.reactions
                 .filter((msgReaction) => {
                     const otherTeamEmojisNames = otherTeamEmojis.map(e => e.name);
@@ -103,16 +100,16 @@ export default class extends Collector {
             const emojisReactedPreviously = reactionsReactedPreviously.map(e => e ? e.emoji : null);
             const hasReactedToOtherTeamEmoji = emojisReactedPreviously.length > 0;
 
-            // if user already reacted to any of the other two emojis
+            // If user already reacted to any of the other two emojis
             if (hasReactedToOtherTeamEmoji) {
-                // 1. unreact the other emoji
+                // 1. Unreact the other emoji
                 await Promise.all(reactionsReactedPreviously.map(async e => {
                     if (e === null) { return; }
                     await e.users.remove(user.id);
                     return;
                 }));
 
-                // 2. remove the other team role associated with other emoji
+                // 2. Remove the other team role associated with other emoji
                 await Promise.all(emojisReactedPreviously.map(async e => {
                     if (e === null) { return; }
                     const teamRole = this.teamRoles[this.getTeamFromName(e.name)];
@@ -121,15 +118,15 @@ export default class extends Collector {
                     };
                 }));
 
-                // 3. add new role
+                // 3. Add new role
                 await member.roles.add(teamRoleToAddOrRemove.id);
             } else {
-                // 1. add associated team role
+                // 1. Add associated team role
                 member.roles.add(teamRoleToAddOrRemove.id);
             }
 
-        } else { // bogus emoji react, remove all
-            // get all users from reaction
+        } else { // Bogus emoji react, remove all
+            // Get all users from reaction
             const users = await reaction.users.fetch();
             await Promise.all(users.map(e => {
                 if (e === null) { return; }
