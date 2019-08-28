@@ -62,6 +62,7 @@ export default class Client extends Discord.Client {
         try {
             this.on(GeneralEventType.ready, this.readyEvent);
             this.on(MessageEventType.message, this.messageEvent);
+            this.on(MessageEventType.messageDelete, this.messageDeleteEvent);
             this.on(MemberEventType.guildMemberAdd, this.guildMemberEvent);
             this.on(MemberEventType.guildMemberRemove, this.guildMemberEvent);
         } catch (error) {

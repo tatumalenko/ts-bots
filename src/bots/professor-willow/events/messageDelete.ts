@@ -6,7 +6,7 @@ import Event from "../../../lib/Event";
 export default class extends Event {
     public constructor() {
         super();
-        this.name = "test";
+        this.name = "messageDelete";
         this.enabled = true;
         this.type = "messageDelete";
         this.description = "";
