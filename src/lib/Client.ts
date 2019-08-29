@@ -14,8 +14,8 @@ import Runner from "./Runner";
 
 process.on("unhandledRejection", (reason, p) => {
     console.log("Unhandled Rejection at:", p, "reason:", reason);
-    // console.log("Exiting bot with status code 1.");
-    // process.exit(1);
+    console.log("Exiting bot with status code 1.");
+    process.exit(1);
 });
 
 export enum GeneralEventType {
@@ -29,7 +29,8 @@ export enum MessageEventType {
 
 export enum MemberEventType {
     guildMemberAdd = "guildMemberAdd",
-    guildMemberRemove = "guildMemberRemove"
+    guildMemberRemove = "guildMemberRemove",
+    guildMemberUpdate = "guildMemberUpdate"
 };
 
 export enum CollectorType {
@@ -63,10 +64,11 @@ export default class Client extends Discord.Client {
 
         try {
             this.on(GeneralEventType.ready, this.readyEvent);
-            this.on(MessageEventType.message, this.messageEvent);
+            this.on(MessageEventType.message, this.messageSendEvent);
             this.on(MessageEventType.messageDelete, this.messageDeleteEvent);
-            this.on(MemberEventType.guildMemberAdd, this.guildMemberEvent);
-            this.on(MemberEventType.guildMemberRemove, this.guildMemberEvent);
+            this.on(MemberEventType.guildMemberAdd, this.guildMemberAddEvent);
+            this.on(MemberEventType.guildMemberRemove, this.guildMemberRemoveEvent);
+            this.on(MemberEventType.guildMemberUpdate, this.guildMemberUpdateEvent);
         } catch (error) {
             this._log(error);
         }
@@ -96,7 +98,7 @@ export default class Client extends Discord.Client {
         }
     }
 
-    public async messageEvent(message: Discord.Message): Promise<void> {
+    public async messageSendEvent(message: Discord.Message): Promise<void> {
         try {
             if (!(message.channel instanceof Discord.TextChannel)) { return; }
 
@@ -188,7 +190,7 @@ export default class Client extends Discord.Client {
         }
     }
 
-    public async guildMemberEvent(member: Discord.GuildMember): Promise<void> {
+    public async guildMemberAddEvent(member: Discord.GuildMember): Promise<void> {
         try {
             if (this.events.length === 0) { return; }
 
@@ -197,11 +199,53 @@ export default class Client extends Discord.Client {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
-                if (event.type in MemberEventType) {
+                if (event.type === MemberEventType.guildMemberAdd) {
                     // Pass `client`, `utils`, and other into `event` instance as property
                     this.setGoodies<Event>(event);
                     // Call `event.run()` method
                     event.run(member);
+                }
+            }));
+        } catch (error) {
+            await this._log(error);
+        }
+    }
+
+    public async guildMemberRemoveEvent(member: Discord.GuildMember): Promise<void> {
+        try {
+            if (this.events.length === 0) { return; }
+
+            // Check for `this.events` which has a property called `type = '<MemberEventType>'`
+            await Promise.all(this.events.map(async (event) => {
+                // Check `event.enabled` is `true`
+                if (!event.enabled) { return; }
+                // Check for `this.events` has property `type = <MemberEventType>`
+                if (event.type === MemberEventType.guildMemberRemove) {
+                    // Pass `client`, `utils`, and other into `event` instance as property
+                    this.setGoodies<Event>(event);
+                    // Call `event.run()` method
+                    event.run(member);
+                }
+            }));
+        } catch (error) {
+            await this._log(error);
+        }
+    }
+
+    public async guildMemberUpdateEvent(oldStateMember: Discord.GuildMember, newStateMember: Discord.GuildMember) {
+        try {
+            if (this.events.length === 0) { return; }
+
+            // Check for `this.events` which has a property called `type = '<MemberEventType>'`
+            await Promise.all(this.events.map(async (event) => {
+                // Check `event.enabled` is `true`
+                if (!event.enabled) { return; }
+                // Check for `this.events` has property `type = <MemberEventType>`
+                if (event.type === MemberEventType.guildMemberUpdate) {
+                    // Pass `client`, `utils`, and other into `event` instance as property
+                    this.setGoodies<Event>(event);
+                    // Call `event.run()` method
+                    event.run(oldStateMember, newStateMember);
                 }
             }));
         } catch (error) {

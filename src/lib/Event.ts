@@ -15,7 +15,9 @@ abstract class Event implements Runner {
     public log!: Logger;
     public helper!: Helper;
 
-    public abstract run(message: Discord.GuildMember | Discord.Message): Promise<void>;
+    public abstract run(
+        oldStateMemberOrMessage: Discord.GuildMember | Discord.Message,
+        newStateMember?: Discord.GuildMember): Promise<void>;
 }
 
 export default Event;
