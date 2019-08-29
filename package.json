@@ -10,7 +10,8 @@
   "license": "MIT",
   "scripts": {
     "start": "echo No start script",
-    "build": "npm run build-ts && npm run lint && npm run copy-static-assets",
+    "build": "npm run build-ts",
+    "build2": "npm run build-ts && npm run lint && npm run copy-static-assets",
     "test": "echo No test script",
     "watch-test": "npm run test -- --watchAll",
     "build-ts": "tsc",
