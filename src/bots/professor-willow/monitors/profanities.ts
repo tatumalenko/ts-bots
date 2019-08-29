@@ -5,7 +5,7 @@ export default class extends Monitor {
     public constructor() {
         super();
         this.name = "profanites";
-        this.enabled = false;
+        this.enabled = true;
         this.runIn = ["show-off", "rant", "moderation", "secret-treehouse", "super-secret-penthouse", "bot-testing"];
         this.description = "";
     }
