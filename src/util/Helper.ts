@@ -69,18 +69,26 @@ export default class Helper extends Discord.Guild {
         return channelsByCategoryMap;
     }
 
-    public async getChannelById(channelId: string): Promise<Discord.GuildChannel | undefined> {
+    public async getChannelById(channelId: string): Promise<Discord.GuildChannel> {
         if (this.guild === undefined) {
             throw new Error("Could not get channel since guild is undefined.");
         }
-        return this.guild.channels.get(channelId);
+        const channel = this.guild.channels.get(channelId);
+        if (!(channel instanceof Discord.TextChannel)) {
+            throw new Error("`message.channel instanceof Discord.TextChannel === false`");
+        }
+        return channel;
     }
 
-    public async getChannelByName(channelName: string): Promise<Discord.GuildChannel | undefined> {
+    public async getChannelByName(channelName: string): Promise<Discord.GuildChannel> {
         if (this.guild === undefined) {
             throw new Error("Could not get channel since guild is undefined.");
         }
-        return this.guild.channels.find(channel => channel.name === channelName);
+        const channel = this.guild.channels.find(channel => channel.name === channelName);
+        if (!(channel instanceof Discord.TextChannel)) {
+            throw new Error("`message.channel instanceof Discord.TextChannel === false`");
+        }
+        return channel;
     }
 
     public async getChannelByNames(categoryName: string, channelName: string): Promise<Discord.TextChannel> {
@@ -91,7 +99,7 @@ export default class Helper extends Discord.Guild {
         if (!category) {
             throw new Error(`this.channelsByCategory.get(${categoryName}) unavailable!`);
         }
-        const channel = category.get(channelName);
+        const channel = await category.get(channelName);
         if (!(channel instanceof Discord.TextChannel)) {
             throw new Error("`message.channel instanceof Discord.TextChannel === false`");
         }
