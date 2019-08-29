@@ -5,7 +5,7 @@ export default class extends Event {
     public constructor() {
         super();
         this.name = "guildMemberRemove";
-        this.enabled = false;
+        this.enabled = true;
         this.type = "guildMemberRemove";
         this.description = "";
     }
@@ -15,9 +15,11 @@ export default class extends Event {
             const guild = member.guild;
             if (guild === null) { throw new Error("`guild === null`"); }
             const systemMessagesChannel = await this.helper.getChannelByNames("Dev", "system-messages");
-            systemMessagesChannel.send(`Gee-Golly. ${member.displayName} has left us.  😢`);
+            const logMsg = `**${member.displayName}** has left the server`;
+            await systemMessagesChannel.send(logMsg);
+            await this.log.info(logMsg);
         } catch (error) {
-            this.log.error(error);
+            await this.log.error(error);
         }
     }
 }
