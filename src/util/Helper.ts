@@ -125,11 +125,15 @@ export default class Helper extends Discord.Guild {
         };
     }
 
-    public getRoleByName(roleName: string): Discord.Role | undefined {
+    public getRoleByName(roleName: string): Discord.Role {
         if (this.guild === undefined) {
             throw new Error("Could not get role since guild is undefined.");
         }
-        return this.guild.roles.find(role => role.name === roleName);
+        const role = this.guild.roles.find(role => role.name === roleName);
+        if (role === undefined) {
+            throw new Error("Could not get role, returned `undefined`.");
+        }
+        return role;
     }
 
     public async getEmojiById(emojiId: string) {
