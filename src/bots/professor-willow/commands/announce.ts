@@ -37,7 +37,6 @@ export default class extends Command {
             if (memberToMention !== null) {
                 const guildMembers = await message.guild.members.fetch();
                 for (const arg of params.args) {
-                    console.log("arg:", arg);
                     memberToMention = await guildMembers
                         .find(guildMember => guildMember.id === arg
                             || guildMember.displayName === arg
