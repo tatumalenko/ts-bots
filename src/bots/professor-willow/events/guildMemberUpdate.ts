@@ -15,7 +15,7 @@ export default class extends Event {
             const guild = newStateMember.guild;
             if (guild === null) { throw new Error("`guild === null`"); }
 
-            const systemMessagesChannel = await this.helper.getChannelByNames("Dev", "system-messages");
+            const systemMessagesChannel = await this.helper.getChannelByNames("Administration", "system-messages");
 
             const newMemberRole = await this.helper.getRoleByName("new-member");
             const teamRoles = await this.helper.getTeamRoles();

@@ -16,7 +16,7 @@ export default class extends Event {
         try {
             const guild = message.guild;
             if (guild === null) { throw new Error("`guild === null`"); }
-            const channelToSend = await this.helper.getChannelByNames("Dev", "forbidden-truths");
+            const channelToSend = await this.helper.getChannelByNames("Administration", "forbidden-truths");
             const auditLogs = await guild.fetchAuditLogs({
                 type: 72,
                 limit: 100,
