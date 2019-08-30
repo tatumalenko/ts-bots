@@ -7,26 +7,32 @@ enum RoleEditAction {
     remove = "remove"
 }
 
-enum PriviledgeRole {
+enum PrivilegeRole {
     admin = "admin",
     mod = "mod",
     "mega-bot" = "mega-bot",
     bot = "bot"
 }
 
-enum NonPriviledgeRole {
+enum NonPrivilegeRole {
     "iv0-", "iv98+", "lvl1", "rare", "unown", "gible", "bidoof", "rocket"
 }
 
 export default class extends Command {
     public constructor() {
-        super();
-        this.name = "role";
-        this.enabled = true;
-        this.runIn = ["test-zone", "role-management", "4200-st-laurent-raid-break", "502678237302882304", "test-zone"];
-        this.description = "";
-        this.aliases = [];
-        this.lowerCaseArgs = false;
+        super({
+            name: "role",
+            enabled: true,
+            runIn: ["test-zone", "role-management", "4200-st-laurent-raid-break", "502678237302882304", "test-zone"],
+            description: "",
+            aliases: [],
+            lowerCaseArgs: false,
+            template: "",
+            helpMessage: {
+                id: "",
+                channelName: ""
+            }
+        });
     }
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void>  {
@@ -71,10 +77,12 @@ export default class extends Command {
                 }
             }
             for (const arg of params.args) {
-                const role = await this.helper.getRoleByName(arg);
-                if (role) {
+                try {
+                    const role = await this.helper.getRoleByName(arg);
                     roleToEdit = role;
                     break;
+                } catch (error) {
+                    // Keep iterating..
                 }
             }
 
@@ -87,9 +95,9 @@ export default class extends Command {
                 throw new Error("The role could not be found! Le role ne semble pas être valid.");
             }
 
-            // Prevent trying to edit a priviledged role when member has none of them.
-            if (Object.keys(PriviledgeRole).some(forbiddenRoleName => roleToEdit && forbiddenRoleName === roleToEdit.name)
-                && !message.member.roles.some(role => Object.keys(PriviledgeRole).includes(role.name))) {
+            // Prevent trying to edit a privileged role when member has none of them.
+            if (Object.keys(PrivilegeRole).some(forbiddenRoleName => roleToEdit && forbiddenRoleName === roleToEdit.name)
+                && !message.member.roles.some(role => Object.keys(PrivilegeRole).includes(role.name))) {
                 throw new Error("You do not have permission for this command! You n'avez pas la permissions d'utiliser cette commande!");
             }
 
@@ -102,7 +110,7 @@ export default class extends Command {
             }
 
             // Prevent trying to edit someone else's role when they have no priviledged role.
-            if (!message.member.roles.some(role => Object.keys(PriviledgeRole).includes(role.name))
+            if (!message.member.roles.some(role => Object.keys(PrivilegeRole).includes(role.name))
                     && message.member.id !== roleMember.id) {
                 throw new Error("You do not have permission for this command! You n'avez pas la permissions d'utiliser cette commande!");
             }
@@ -112,7 +120,7 @@ export default class extends Command {
             }
 
             // If in high-iv-alerts, can only edit non priviledged roles.
-            const allowedRoleNames = Object.keys(NonPriviledgeRole);
+            const allowedRoleNames = Object.keys(NonPrivilegeRole);
             if (message.channel.name === "💥high-iv-alerts💥"
                 && !allowedRoleNames.some(allowedRoleName => roleToEdit && roleToEdit.name === allowedRoleName)) {
                 throw new Error(`💥Not a valid role name.💥\nTry one of ${allowedRoleNames.join(", ")}`);

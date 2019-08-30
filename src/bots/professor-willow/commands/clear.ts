@@ -4,13 +4,19 @@ import CommandParameters from "../../../lib/CommandParameters";
 
 export default class extends Command {
     public constructor() {
-        super();
-        this.name = "clear";
-        this.enabled = true;
-        this.runIn = ["all"];
-        this.description = "";
-        this.aliases = [];
-        this.lowerCaseArgs = false;
+        super({
+            name: "clear",
+            enabled: true,
+            runIn: ["all"],
+            description: "",
+            aliases: [],
+            lowerCaseArgs: false,
+            template: "",
+            helpMessage: {
+                id: "",
+                channelName: ""
+            }
+        });
     }
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
