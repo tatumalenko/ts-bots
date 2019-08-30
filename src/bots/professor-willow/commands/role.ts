@@ -28,9 +28,10 @@ export default class extends Command {
             aliases: [],
             lowerCaseArgs: false,
             template: "",
-            helpMessage: {
-                id: "",
-                channelName: ""
+            helpMessageInfo: {
+                messageId: "616818963862651030",
+                channelName: "bot-cmd-msgs",
+                categoryName: "Dev"
             }
         });
     }
@@ -147,7 +148,8 @@ export default class extends Command {
             return;
         } catch (error) {
             await message.channel.send(error.message);
-            this.log.error(error);
+            await this.log.error(error);
+            await this.help(message.channel as Discord.TextChannel);
         }
     }
 }

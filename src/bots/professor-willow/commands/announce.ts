@@ -12,9 +12,10 @@ export default class extends Command {
             aliases: [],
             lowerCaseArgs: false,
             template: "",
-            helpMessage: {
-                id: "",
-                channelName: ""
+            helpMessageInfo: {
+                messageId: "616817827860709405",
+                channelName: "bot-cmd-msgs",
+                categoryName: "Dev"
             }
         });
     }
@@ -23,15 +24,6 @@ export default class extends Command {
         try {
             if (message.guild === null) {
                 throw new Error("`message.guild` is null.");
-            }
-
-            if (params.args.length === 0) {
-                await this.helper.sendMessageByIdToChannel(message.channel as Discord.TextChannel, {
-                    messageId: "614856749106593801",
-                    channelName: "announcement-post",
-                    categoryName: "Dev"
-                });
-                return;
             }
 
             const channelToSend = message.mentions.channels.first();
@@ -77,6 +69,7 @@ export default class extends Command {
         } catch (error) {
             await message.channel.send(error.message);
             await this.log.error(error);
+            await this.help(message.channel as Discord.TextChannel);
         }
     }
 }

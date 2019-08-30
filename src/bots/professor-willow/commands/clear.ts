@@ -12,9 +12,10 @@ export default class extends Command {
             aliases: [],
             lowerCaseArgs: false,
             template: "",
-            helpMessage: {
-                id: "",
-                channelName: ""
+            helpMessageInfo: {
+                messageId: "616819406433026059",
+                channelName: "bot-cmd-msgs",
+                categoryName: "Dev"
             }
         });
     }
@@ -66,8 +67,9 @@ export default class extends Command {
 
             await this.log.info(`${message.author.toString()} cleared ${numberOfMsgsToClear} messages in \`${(message.channel as Discord.TextChannel).name}\`.`);
         } catch (error) {
-            await message.channel.send(error.message !== "" ? error.message : "Oops, something went wrong :( @uphill");
+            await message.channel.send(error.message);
             await this.log.error(error);
+            await this.help(message.channel as Discord.TextChannel);
         }
     }
 }

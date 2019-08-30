@@ -12,9 +12,10 @@ export default class extends Command {
             aliases: [],
             lowerCaseArgs: false,
             template: "",
-            helpMessage: {
-                id: "",
-                channelName: ""
+            helpMessageInfo: {
+                messageId: "616819790463500289",
+                channelName: "bot-cmd-msgs",
+                categoryName: "Dev"
             }
         });
     }
@@ -49,7 +50,9 @@ export default class extends Command {
                 message.channel.send(`There are **${newMembers}** new members in the past ${days} day(s)/${hours} hours!`);
             }
         } catch (error) {
-            this.log.error(error);
+            await message.channel.send(error.message);
+            await this.log.error(error);
+            await this.help(message.channel as Discord.TextChannel);
         }
     }
 }

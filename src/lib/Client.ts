@@ -148,8 +148,13 @@ export default class Client extends Discord.Client {
                         // Pass `client`, `utils`, and other into `command` instance as property
                         this.setGoodies<Command>(command);
 
-                        // Call `command.run()` method
-                        await command.run(message, params);
+                        if (params.args.length > 0 && params.args[0] === "help") {
+                            await command.helper.sendMessageByIdToChannel(message.channel as Discord.TextChannel, command.helpMessageInfo);
+                            return;
+                        } else {
+                            // Call `command.run()` method
+                            await command.run(message, params);
+                        }
                     }
                 } catch (error) {
                     await this._log(error);
