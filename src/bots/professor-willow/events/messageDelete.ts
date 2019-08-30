@@ -17,6 +17,7 @@ export default class extends Event {
             const guild = message.guild;
             if (guild === null) { throw new Error("`guild === null`"); }
             const channelToSend = await this.helper.getChannelByNames("Administration", "forbidden-truths");
+
             const auditLogs = await guild.fetchAuditLogs({
                 type: 72,
                 limit: 100,
@@ -26,7 +27,7 @@ export default class extends Event {
 
             const msgId = message.id;
             let msgContent = message.content;
-            let msgChannel = message.channel;
+            let msgChannel = await this.helper.getChannelById(message.channel.id);
             let createdWhen = message.createdAt.toString();
             let createdBy = mostRecentAuditLog.target;
             let deletedBy = mostRecentAuditLog.executor;
@@ -47,14 +48,13 @@ export default class extends Event {
             // if partial and self delete, then
             //      audit logs useless and nothing is certain
             // if partial and cross delete, then
-            //      audit logs reliable for stuff
+            //      audit logs reliable for stuff (unless a bot deletes msgs?!)
             // if cached and self delete, then
             //      audit logs useless but can rely on message
             // else cached and cross delete, then
             //      audit logs and message reliable
             if (message.partial) { // msg is not cached
                 deleteType = "Inconclusive";
-                msgChannel = message.channel;
                 msgContent = "*Could not fetch uncached deleted message content.*";
                 createdWhen = "*Could not fetch uncached deleted message date.*";
                 deletedWhen += " (*maybe*)";
@@ -71,7 +71,7 @@ export default class extends Event {
                 const deltaTimestampMinutes = deltaTimestamp / 1000 / 60;
                 if (message.author !== createdBy
                     || deltaTimestampMinutes > 1) {
-                    console.log("Inconsistency found in author/createdBy or date.");
+                    console.log("Inconsistency found in author vs. createdBy or audit log date vs. now-1 min.");
                     // can't rely on audit logs
                     // chances are deleted own message
                     if (message.author) { createdBy = message.author; }
@@ -117,7 +117,16 @@ export default class extends Event {
                 }
             }
 
-            await channelToSend.send(embed);
+            const modRole = await this.helper.getRoleByName("mod");
+            const modPermissions = msgChannel.permissionsFor(modRole);
+            if (!modPermissions || !modPermissions.has("VIEW_CHANNEL")) {
+                const logChannel = await this.helper.getChannelByNames("Dev", "bot-logs");
+                await logChannel.send(embed);
+            } else {
+                await channelToSend.send(embed);
+            }
+
+            return;
         } catch (error) {
             this.log.error(error);
         }
