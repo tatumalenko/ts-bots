@@ -122,7 +122,12 @@ export default class extends Command {
             const allowedRoleNames = Object.values(NonPrivilegeRole);
             if (message.channel.name === "💥high-iv-alerts💥"
                 && !allowedRoleNames.some(allowedRoleName => roleToEdit && roleToEdit.name === allowedRoleName)) {
-                throw new Error(`💥Not a valid role name.💥\nTry one of ${allowedRoleNames.join(", ")}`);
+                const infoMsg = await this.helper.getMessageById({
+                    messageId: "612350414939095068",
+                    categoryName: "FEATURES",
+                    channelName: "💥high-iv-alerts💥"
+                });
+                throw new Error(`💥Not a valid role name.💥\n${infoMsg}}`);
             }
 
             let okMsg: string;
