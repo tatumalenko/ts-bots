@@ -144,11 +144,27 @@ export default class Helper extends Discord.Guild {
         return role;
     }
 
-    public async getEmojiById(emojiId: string) {
+    public async getEmojiByIdMaybe(emojiId: string): Promise<Discord.GuildEmoji | undefined> {
         if (this.guild === undefined) {
             throw new Error("Could not get emoji since guild is undefined.");
         }
         return this.guild.emojis.get(emojiId);
+    }
+
+    public async getEmojiById(emojiId: string): Promise<Discord.GuildEmoji> {
+        if (this.guild === undefined) {
+            throw new Error("Could not get emoji since guild is undefined.");
+        }
+        let emoji = this.guild.emojis.get(emojiId);
+        if (emoji === undefined) {
+            // Try to see if numeric only part of string is ID
+            const maybeCustomEmojiId = emojiId.replace(/[^0-9\.]+/g, "");
+            emoji = this.guild.emojis.get(maybeCustomEmojiId);
+            if (emoji === undefined) {
+                throw new Error("Could not find emoji.");
+            }
+        }
+        return emoji;
     }
 
     private async _setTeamEmojis(): Promise<void> {
