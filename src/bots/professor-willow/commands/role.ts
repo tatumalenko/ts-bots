@@ -119,7 +119,7 @@ export default class extends Command {
             }
 
             // If in high-iv-alerts, can only edit non priviledged roles.
-            const allowedRoleNames = Object.keys(NonPrivilegeRole);
+            const allowedRoleNames = Object.values(NonPrivilegeRole);
             if (message.channel.name === "💥high-iv-alerts💥"
                 && !allowedRoleNames.some(allowedRoleName => roleToEdit && roleToEdit.name === allowedRoleName)) {
                 throw new Error(`💥Not a valid role name.💥\nTry one of ${allowedRoleNames.join(", ")}`);
