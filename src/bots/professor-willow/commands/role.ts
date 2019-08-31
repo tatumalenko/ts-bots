@@ -44,14 +44,20 @@ export default class extends Command {
     }
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void>  {
+        let infoMsg: Discord.Message | null = null;
+        try {
+            infoMsg = await this.helper.getMessageById({
+                messageId: "617267758140358676",
+                categoryName: "Dev",
+                channelName: "bot-cmd-msgs"
+            });
+        } catch (error) {
+            await this.log.error("Could not find `infoMsg`", error);
+        }
+
         try {
             if (params.args.length > 3) {
-                await this.helper.sendMessageByIdToChannel(message.channel as Discord.TextChannel, {
-                    messageId: "614856749106593801",
-                    channelName: "announcement-post",
-                    categoryName: "Dev"
-                });
-                throw new Error("Invalid number of arguments, see command instructions ^^.");
+                throw new Error("Invalid number of arguments, see command instructions.");
             }
 
             if (!message.member || !(message.channel instanceof Discord.TextChannel)) {
@@ -151,8 +157,16 @@ export default class extends Command {
             return;
         } catch (error) {
             await message.channel.send(error.message);
+
+            if (message.channel instanceof Discord.TextChannel
+                && message.channel.name === "💥high-iv-alerts💥"
+                && infoMsg !== null) {
+                await message.channel.send(infoMsg);
+            } else {
+                await this.help(message.channel as Discord.TextChannel);
+            }
+
             await this.log.error(error);
-            await this.help(message.channel as Discord.TextChannel);
         }
     }
 }
