@@ -15,7 +15,14 @@ enum PrivilegeRole {
 }
 
 enum NonPrivilegeRole {
-    "iv0-", "iv98+", "lvl1", "rare", "unown", "gible", "bidoof", "rocket"
+    IV0 = "iv0-",
+    IV98 = "iv98+",
+    LVL1 = "lvl1",
+    RARE = "rare",
+    UNOWN = "unown",
+    GIBLE = "gible",
+    BIDOOF = "bidoof",
+    ROCKET = "rocket"
 }
 
 export default class extends Command {
