@@ -13,7 +13,7 @@ export default class extends Command {
             lowerCaseArgs: false,
             template: "",
             helpMessageInfo: {
-                messageId: "617189117234511872",
+                messageId: "617189124209639454",
                 channelName: "bot-cmd-msgs",
                 categoryName: "Dev"
             }
