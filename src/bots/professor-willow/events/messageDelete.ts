@@ -30,7 +30,7 @@ export default class extends Event {
             let msgChannel = await this.helper.getChannelById(message.channel.id);
             let createdWhen = message.createdAt.toString();
             let createdBy = mostRecentAuditLog.target;
-            let deletedBy = mostRecentAuditLog.executor;
+            let deletedBy = `${mostRecentAuditLog.executor}`;
             let deletedWhen = mostRecentAuditLog.createdAt.toString();
             let deleteType;
             let attachments;
@@ -75,7 +75,7 @@ export default class extends Event {
                     // can't rely on audit logs
                     // chances are deleted own message
                     if (message.author) { createdBy = message.author; }
-                    if (createdBy instanceof Discord.User) { deletedBy = createdBy; }
+                    if (createdBy instanceof Discord.User) { deletedBy = `${createdBy} (unless it was ${this.client.user})`; }
                     deletedWhen = "*Inconclusive*";
                     deleteType = "Self Member Delete";
                 } else {
