@@ -22,12 +22,12 @@ export default class extends Command {
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
         try {
-            const channelWithInfoMsg = await this.helper.getMessageById({
+            const infoMsg = await this.helper.getMessageById({
                 messageId: "599766056646737980",
-                categoryName: "FEATURES",
-                channelName: "💥high-iv-alerts💥"
+                categoryName: "General",
+                channelName: "quest-raid-iv-map"
             });
-            await message.channel.send(channelWithInfoMsg);
+            await message.channel.send(infoMsg);
         } catch (error) {
             await message.channel.send(error.message);
             await this.log.error(error);
