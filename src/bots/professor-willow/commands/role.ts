@@ -45,15 +45,6 @@ export default class extends Command {
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void>  {
         try {
-            if (params.args.length === 0) {
-                await this.helper.sendMessageByIdToChannel(message.channel as Discord.TextChannel, {
-                    messageId: "614856749106593801",
-                    channelName: "announcement-post",
-                    categoryName: "Dev"
-                });
-                return;
-            }
-
             if (params.args.length > 3) {
                 await this.helper.sendMessageByIdToChannel(message.channel as Discord.TextChannel, {
                     messageId: "614856749106593801",
