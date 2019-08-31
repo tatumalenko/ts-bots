@@ -135,16 +135,16 @@ export default class extends Command {
             switch (roleToEditAction.toLowerCase()) {
                 case RoleEditAction.add.toString():
                     await roleMember.roles.add(roleToEdit);
-                    okMsg = `Got it! Gave ${roleToEdit.name} access to ${roleMember.displayName}`;
+                    okMsg = `Got it! Assigned ${roleToEdit.name} role to ${roleMember.displayName}.`;
                     break;
 
                 case RoleEditAction.remove.toString():
                     await roleMember.roles.remove(roleToEdit);
-                    okMsg = `Got it! Removed ${roleToEdit.name} access to ${roleMember.displayName}`;
+                    okMsg = `Got it! Removed ${roleToEdit.name} role to ${roleMember.displayName}.`;
                     break;
 
                 default:
-                    okMsg = "Oops. Something went wrong, no roles were edited";
+                    okMsg = "Oops. Something went wrong, no roles were edited.";
                     break;
             }
             await message.channel.send(okMsg);
