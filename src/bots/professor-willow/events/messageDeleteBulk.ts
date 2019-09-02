@@ -13,6 +13,9 @@ export default class extends Event {
             const deleteMessageEventInstance = this.client.events
                 .find((e) => e.type === MessageEventType.MessageDelete);
             if (deleteMessageEventInstance === undefined) { throw new Error("`deleteMessageBulkEventInstance === undefined`"); }
+            // Set instance `helper` and `client`, otherwise will be undefined
+            deleteMessageEventInstance.helper = this.helper;
+            deleteMessageEventInstance.client = this.client;
             for (const message of messages.values()) {
                 await deleteMessageEventInstance.run(message);
             }

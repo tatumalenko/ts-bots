@@ -189,7 +189,7 @@ const messageDelete: EventConfig = {
 
 const messageDeleteBulk: EventConfig = {
     name: "messageDeleteBulk",
-    enabled: false,
+    enabled: true,
     type: MessageEventType.MessageDeleteBulk,
     description: ""
 };
