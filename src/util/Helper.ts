@@ -155,6 +155,7 @@ export default class Helper extends Discord.Guild {
         return role;
     }
 
+    // TODO: Make use of the maybe version for variable order commands.
     public getEmojiByIdMaybe(emojiId: string): Discord.GuildEmoji | undefined {
         if (this.guild === undefined) {
             throw new Error("Could not get emoji since guild is undefined.");
@@ -170,8 +171,14 @@ export default class Helper extends Discord.Guild {
         if (emoji === undefined) {
             // Try to see if numeric only part of string is ID
             // eslint-disable-next-line require-unicode-regexp
-            const maybeCustomEmojiId = emojiId.replace(/[^0-9.]+/g, "");
-            emoji = this.guild.emojis.get(maybeCustomEmojiId);
+            const maybeCustomEmojiId = emojiId.match(/:[0-9.]+/g);
+            if (!!maybeCustomEmojiId && maybeCustomEmojiId[0][0] === ":") {
+                emoji = this.guild.emojis
+                    .get(maybeCustomEmojiId[0]
+                        .split("")
+                        .slice(1)
+                        .join(""));
+            }
             if (emoji === undefined) {
                 throw new Error("Could not find emoji.");
             }

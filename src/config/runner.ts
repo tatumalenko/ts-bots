@@ -145,9 +145,17 @@ const profanities: MonitorConfig = {
     description: ""
 };
 
+const doubleNom: MonitorConfig = {
+    name: "doubleNom",
+    enabled: true,
+    runIn: [ "all" ],
+    description: ""
+};
+
 const monitorConfigs = {
     cpCountingGame,
-    profanities
+    profanities,
+    doubleNom
 };
 
 const guildMemberAdd: EventConfig = {
