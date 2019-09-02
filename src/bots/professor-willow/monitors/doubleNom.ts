@@ -18,6 +18,11 @@ export default class extends Monitor {
             if (message.member && message.member.id !== dnId) {
                 return;
             }
+            // Add a random probability of responding
+            const randNumber = Math.random();
+            const shouldReply = randNumber > 0.1 && randNumber < 0.4;
+            if (!shouldReply) { return; }
+
             const reactions = [ "🌶", "🥛", "604468664024039454" ];
             await Promise.all(reactions.map((e) => message.react(e)));
         } catch (error) {
