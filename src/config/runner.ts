@@ -126,7 +126,8 @@ const cpCountingGame: MonitorConfig = {
     enabled: true,
     runIn: [
         "test-zone",
-        "cp-counting-game"
+        "cp-counting-game",
+        "✨-cp-counting-game"
     ],
     description: ""
 };
