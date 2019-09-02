@@ -1,4 +1,4 @@
-import Discord from "discord.js";
+import Discord, { Collection, Snowflake } from "discord.js";
 import Helper from "../util/Helper";
 import Logger from "../util/Logger";
 import Utils from "../util/Utils";
@@ -11,7 +11,7 @@ abstract class Event implements Runner {
 
     public enabled: boolean;
 
-    public type: keyof typeof MemberEventType | keyof typeof MessageEventType;
+    public type: MemberEventType | MessageEventType;
 
     public description: string;
 
@@ -31,7 +31,7 @@ abstract class Event implements Runner {
     }
 
     public abstract run(
-        oldStateMemberOrMessage: Discord.GuildMember | Discord.Message,
+        oldStateMemberOrMessage: Discord.GuildMember | Discord.Message | Collection<Snowflake, Discord.Message>,
         newStateMember?: Discord.GuildMember): Promise<void>;
 }
 

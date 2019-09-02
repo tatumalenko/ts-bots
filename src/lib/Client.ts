@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 /* eslint-disable no-process-exit */
 /* eslint-disable no-console */
-import Discord from "discord.js";
+import Discord, { Collection, Snowflake } from "discord.js";
 import fs from "fs";
 import path from "path";
 import config from "../config/config";
@@ -22,22 +22,23 @@ process.on("unhandledRejection", (reason, p) => {
 });
 
 export enum GeneralEventType {
-    ready = "ready"
+    Ready = "ready"
 }
 
 export enum MessageEventType {
-    message = "message",
-    messageDelete = "messageDelete"
+    Message = "message",
+    MessageDelete = "messageDelete",
+    MessageDeleteBulk = "messageDeleteBulk"
 }
 
 export enum MemberEventType {
-    guildMemberAdd = "guildMemberAdd",
-    guildMemberRemove = "guildMemberRemove",
-    guildMemberUpdate = "guildMemberUpdate"
+    GuildMemberAdd = "guildMemberAdd",
+    GuildMemberRemove = "guildMemberRemove",
+    GuildMemberUpdate = "guildMemberUpdate"
 }
 
 export enum CollectorType {
-    reaction = "reaction"
+    Reaction = "reaction"
 }
 
 // TODO: Use config file instead for runner args
@@ -79,12 +80,13 @@ export default class Client extends Discord.Client {
         this.log = new Logger(this);
 
         try {
-            this.on(GeneralEventType.ready, this.readyEvent);
-            this.on(MessageEventType.message, this.messageSendEvent);
-            this.on(MessageEventType.messageDelete, this.messageDeleteEvent);
-            this.on(MemberEventType.guildMemberAdd, this.guildMemberAddEvent);
-            this.on(MemberEventType.guildMemberRemove, this.guildMemberRemoveEvent);
-            this.on(MemberEventType.guildMemberUpdate, this.guildMemberUpdateEvent);
+            this.on(GeneralEventType.Ready, this.readyEvent);
+            this.on(MessageEventType.Message, this.messageSendEvent);
+            this.on(MessageEventType.MessageDelete, this.messageDeleteEvent);
+            this.on(MessageEventType.MessageDeleteBulk, this.messageDeleteBulkEvent);
+            this.on(MemberEventType.GuildMemberAdd, this.guildMemberAddEvent);
+            this.on(MemberEventType.GuildMemberRemove, this.guildMemberRemoveEvent);
+            this.on(MemberEventType.GuildMemberUpdate, this.guildMemberUpdateEvent);
         } catch (error) {
             this._log(error);
         }
@@ -220,7 +222,7 @@ export default class Client extends Discord.Client {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
-                if (event.type === MemberEventType.guildMemberAdd) {
+                if (event.type === MemberEventType.GuildMemberAdd) {
                     // Pass `client`, `utils`, and other into `event` instance as property
                     this.setGoodies<Event>(event);
                     // Call `event.run()` method
@@ -241,7 +243,7 @@ export default class Client extends Discord.Client {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
-                if (event.type === MemberEventType.guildMemberRemove) {
+                if (event.type === MemberEventType.GuildMemberRemove) {
                     // Pass `client`, `utils`, and other into `event` instance as property
                     this.setGoodies<Event>(event);
                     // Call `event.run()` method
@@ -262,7 +264,7 @@ export default class Client extends Discord.Client {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
-                if (event.type === MemberEventType.guildMemberUpdate) {
+                if (event.type === MemberEventType.GuildMemberUpdate) {
                     // Pass `client`, `utils`, and other into `event` instance as property
                     this.setGoodies<Event>(event);
                     // Call `event.run()` method
@@ -282,13 +284,34 @@ export default class Client extends Discord.Client {
                 if (!event.enabled) { return; }
 
                 // Check for `this.events` has property `eventName = 'messageDelete'`
-                if (event.type !== MessageEventType.messageDelete) { return; }
+                if (event.type !== MessageEventType.MessageDelete) { return; }
 
                 // Pass `client`, `utils`, and other into `event` instance as property
                 this.setGoodies<Event>(event);
 
                 // Call `event.run()` method
                 await event.run(deletedMessage);
+            }));
+        } catch (error) {
+            this._log(error);
+        }
+    }
+
+    public async messageDeleteBulkEvent(deletedMessages: Collection<Snowflake, Discord.Message>): Promise<void> {
+        try {
+            if (this.events.length === 0) { return; }
+
+            await Promise.all(this.events.map(async (event) => {
+                if (!event.enabled) { return; }
+
+                // Check for `this.events` has property `eventName = 'messageDelete'`
+                if (event.type !== MessageEventType.MessageDeleteBulk) { return; }
+
+                // Pass `client`, `utils`, and other into `event` instance as property
+                this.setGoodies<Event>(event);
+
+                // Call `event.run()` method
+                await event.run(deletedMessages);
             }));
         } catch (error) {
             this._log(error);

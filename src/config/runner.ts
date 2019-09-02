@@ -161,28 +161,35 @@ const monitorConfigs = {
 const guildMemberAdd: EventConfig = {
     name: "guildMemberAdd",
     enabled: false,
-    type: MemberEventType.guildMemberAdd,
+    type: MemberEventType.GuildMemberAdd,
     description: ""
 };
 
 const guildMemberRemove: EventConfig = {
     name: "guildMemberRemove",
     enabled: true,
-    type: MemberEventType.guildMemberRemove,
+    type: MemberEventType.GuildMemberRemove,
     description: ""
 };
 
 const guildMemberUpdate: EventConfig = {
     name: "guildMemberUpdate",
     enabled: true,
-    type: MemberEventType.guildMemberUpdate,
+    type: MemberEventType.GuildMemberUpdate,
     description: ""
 };
 
 const messageDelete: EventConfig = {
     name: "messageDelete",
     enabled: true,
-    type: MessageEventType.messageDelete,
+    type: MessageEventType.MessageDelete,
+    description: ""
+};
+
+const messageDeleteBulk: EventConfig = {
+    name: "messageDeleteBulk",
+    enabled: true,
+    type: MessageEventType.MessageDeleteBulk,
     description: ""
 };
 
@@ -190,7 +197,8 @@ const eventConfigs = {
     guildMemberAdd,
     guildMemberRemove,
     guildMemberUpdate,
-    messageDelete
+    messageDelete,
+    messageDeleteBulk
 };
 
 const welcome: CollectorConfig = {
