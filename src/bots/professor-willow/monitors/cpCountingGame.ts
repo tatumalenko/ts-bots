@@ -1,19 +1,16 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Monitor from "../../../lib/Monitor";
 
 export default class extends Monitor {
-    public constructor() {
-        super();
-        this.name = "cpCountingGame";
-        this.enabled = true;
-        this.runIn = ["test-zone", "cp-counting-game"];
-        this.description = "";
+    public constructor () {
+        super(runnerConfig.monitor.cpCountingGame);
     }
 
-    public async run(message: Discord.Message): Promise<void> {
+    public async run (message: Discord.Message): Promise<void> {
         try {
-            if (!!message.author && message.author.bot === true
-                || message.attachments.size === 0) {
+            if ((!!message.author && message.author.bot === true) ||
+                message.attachments.size === 0) {
                 return;
             }
 

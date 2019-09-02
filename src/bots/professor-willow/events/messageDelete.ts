@@ -1,33 +1,30 @@
 import axios from "axios";
 import cheerio from "cheerio";
 import Discord, { MessageEmbed } from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Event from "../../../lib/Event";
 
 export default class extends Event {
     public constructor() {
-        super();
-        this.name = "messageDelete";
-        this.enabled = true;
-        this.type = "messageDelete";
-        this.description = "";
+        super(runnerConfig.event.messageDelete);
     }
 
-    public async run(message: Discord.Message): Promise<void>  {
+    public async run(message: Discord.Message): Promise<void> {
         try {
-            const guild = message.guild;
+            const { guild } = message;
             if (guild === null) { throw new Error("`guild === null`"); }
             const channelToSend = await this.helper.getChannelByNames("Administration", "forbidden-truths");
 
             const auditLogs = await guild.fetchAuditLogs({
                 type: 72,
-                limit: 100,
+                limit: 100
             });
             const mostRecentAuditLog = auditLogs.entries.first();
             if (mostRecentAuditLog === undefined) { throw new Error("`mostRecentAuditLog === undefined"); }
 
             const msgId = message.id;
             let msgContent = message.content;
-            let msgChannel = await this.helper.getChannelById(message.channel.id);
+            const msgChannel = await this.helper.getChannelById(message.channel.id);
             let createdWhen = message.createdAt.toString();
             let createdBy = mostRecentAuditLog.target;
             let deletedBy = `${mostRecentAuditLog.executor}`;
@@ -45,21 +42,22 @@ export default class extends Event {
                 }
             };
 
-            // if partial and self delete, then
-            //      audit logs useless and nothing is certain
-            // if partial and cross delete, then
-            //      audit logs reliable for stuff (unless a bot deletes msgs?!)
-            // if cached and self delete, then
-            //      audit logs useless but can rely on message
-            // else cached and cross delete, then
-            //      audit logs and message reliable
-            if (message.partial) { // msg is not cached
+            /*
+             * If partial and self delete, then
+             *      Audit logs useless and nothing is certain
+             * If partial and cross delete, then
+             *      Audit logs reliable for stuff (unless a bot deletes msgs?!)
+             * If cached and self delete, then
+             *      Audit logs useless but can rely on message
+             * Else cached and cross delete, then
+             *      Audit logs and message reliable
+             */
+            if (message.partial) { // Msg is not cached
                 deleteType = "Inconclusive";
                 msgContent = "*Could not fetch uncached deleted message content.*";
                 createdWhen = "*Could not fetch uncached deleted message date.*";
                 deletedWhen += " (*maybe*)";
-            } else { // msg is cached
-                console.log("Message is cached");
+            } else { // Msg is cached
                 if (message.attachments.size > 0) {
                     attachments = message.attachments.array();
                     const firstAttachment = message.attachments.first();
@@ -69,13 +67,19 @@ export default class extends Event {
                 }
                 const deltaTimestamp = new Date().getTime() - new Date(mostRecentAuditLog.createdTimestamp).getTime();
                 const deltaTimestampMinutes = deltaTimestamp / 1000 / 60;
-                if (message.author !== createdBy
-                    || deltaTimestampMinutes > 1) {
-                    console.log("Inconsistency found in author vs. createdBy or audit log date vs. now-1 min.");
-                    // can't rely on audit logs
-                    // chances are deleted own message
-                    if (message.author) { createdBy = message.author; }
-                    if (createdBy instanceof Discord.User) { deletedBy = `${createdBy} (unless it was ${this.client.user})`; }
+                if (message.author !== createdBy ||
+                    deltaTimestampMinutes > 1) {
+
+                    /*
+                     * Can't rely on audit logs
+                     * Chances are deleted own message
+                     */
+                    if (message.author) {
+                        createdBy = message.author;
+                    }
+                    if (createdBy instanceof Discord.User) {
+                        deletedBy = `${createdBy} (unless it was ${this.client.user})`;
+                    }
                     deletedWhen = "*Inconclusive*";
                     deleteType = "Self Member Delete";
                 } else {

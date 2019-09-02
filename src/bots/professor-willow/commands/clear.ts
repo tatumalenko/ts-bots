@@ -1,28 +1,16 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Command from "../../../lib/Command";
 import CommandParameters from "../../../lib/CommandParameters";
 
 export default class extends Command {
     public constructor() {
-        super({
-            name: "clear",
-            enabled: true,
-            runIn: ["all"],
-            description: "",
-            aliases: [],
-            lowerCaseArgs: false,
-            template: "",
-            helpMessageInfo: {
-                messageId: "616819406433026059",
-                channelName: "bot-cmd-msgs",
-                categoryName: "Dev"
-            }
-        });
+        super(runnerConfig.command.clear);
     }
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
         try {
-            const numberOfMsgsToClear = params.args[0];
+            const [ numberOfMsgsToClear ] = params.args;
 
             if (!(message.channel instanceof Discord.TextChannel)) {
                 throw new Error("`message.channel` is not an instance of `Discord.TextChannel`.");
@@ -34,23 +22,27 @@ export default class extends Command {
 
             const memberPermissions = message.channel.permissionsFor(message.author);
 
-            // Check the following permissions before deleting messages:
-            //    1. Check if the user has enough permissions
-            //    2. Check if I have the permission to execute the command
+            /*
+             * Check the following permissions before deleting messages:
+             *    1. Check if the user has enough permissions
+             *    2. Check if I have the permission to execute the command
+             */
             if (!memberPermissions || !memberPermissions.has("MANAGE_MESSAGES")) {
                 throw new Error(`Sorry, you don't have the permission to execute the command \`${message.content}\`.`);
             }
 
-            // Only delete messages if the channel type is `TextChannel`
-            // DO NOT delete messages in `GroupChannel` or `DMChannel`
+            /*
+             * Only delete messages if the channel type is `TextChannel`
+             * DO NOT delete messages in `GroupChannel` or `DMChannel`
+             */
             if (!(message.channel instanceof Discord.TextChannel)) {
                 throw new Error();
             }
 
             if (!numberOfMsgsToClear || typeof Number(numberOfMsgsToClear) !== "number") {
-                throw new Error("You need to enter a number following the `!clear` "
-                + "command to indicate how many messages to delete!\n"
-                + "Example: `!clear 2`");
+                throw new Error("You need to enter a number following the `!clear` " +
+                "command to indicate how many messages to delete!\n" +
+                "Example: `!clear 2`");
             }
 
             // Default 50 most recent are loaded in cache

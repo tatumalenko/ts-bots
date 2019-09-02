@@ -1,3 +1,6 @@
+/* eslint-disable global-require */
+/* eslint-disable no-process-exit */
+/* eslint-disable no-console */
 import Discord from "discord.js";
 import fs from "fs";
 import path from "path";
@@ -31,23 +34,34 @@ export enum MemberEventType {
     guildMemberAdd = "guildMemberAdd",
     guildMemberRemove = "guildMemberRemove",
     guildMemberUpdate = "guildMemberUpdate"
-};
+}
 
 export enum CollectorType {
     reaction = "reaction"
 }
 
+// TODO: Use config file instead for runner args
 export default class Client extends Discord.Client {
     public name: string;
+
     public runIn: string[];
+
     public configs: any;
+
     public utils: typeof Utils;
+
     public log: Logger;
+
     public guild: Discord.Guild | null = null;
+
     public clientOptions: ClientOptions;
+
     public commands: Command[] = [];
+
     public monitors: Monitor[] = [];
+
     public events: Event[] = [];
+
     public collectors: Collector[] = [];
 
     public constructor(options: ClientOptions) {
@@ -57,8 +71,10 @@ export default class Client extends Discord.Client {
         this.runIn = options.runIn;
         this.configs = config;
 
-        // Be careful of ordering here, passing this requires
-        // other props to be set first
+        /*
+         * Be careful of ordering here, passing this requires
+         * other props to be set first
+         */
         this.utils = Utils;
         this.log = new Logger(this);
 
@@ -78,7 +94,7 @@ export default class Client extends Discord.Client {
         try {
             console.log("Client is ready!");
 
-            let guild = this.guilds.get(config.guildId);
+            const guild = this.guilds.get(config.guildId);
             this.guild = guild ? guild : null;
 
             this.commands = this.load<Command>("commands");
@@ -86,9 +102,9 @@ export default class Client extends Discord.Client {
             this.events = this.load<Event>("events");
             this.collectors = this.load<Collector>("collectors");
 
-            console.log("\n-----------------------------------------------------------------\n"
-            + `${this.user ? this.user.tag : "null?!"}, Ready to serve ${this.guilds.size} guilds and ${this.users.size} users\n`
-            + "-----------------------------------------------------------------");
+            console.log("\n-----------------------------------------------------------------\n" +
+                `${this.user ? this.user.tag : "null?!"}, Ready to serve ${this.guilds.size} guilds and ${this.users.size} users\n` +
+                "-----------------------------------------------------------------");
 
             this.initCollectors();
 
@@ -107,9 +123,7 @@ export default class Client extends Discord.Client {
             if (someCommandShouldRun) { await this.commandMessageEvent(message); }
 
             if (this.monitors.length > 0) {
-                const someMonitorShouldRun = this.monitors.some(
-                    monitor => monitor.runIn.includes((message.channel as Discord.TextChannel).name)
-                );
+                const someMonitorShouldRun = this.monitors.some((monitor) => monitor.runIn.includes((message.channel as Discord.TextChannel).name));
                 if (someMonitorShouldRun) { await this.monitorMessageEvent(message); }
                 return;
             }
@@ -117,6 +131,7 @@ export default class Client extends Discord.Client {
             await this._log(error);
         }
     }
+
     public async commandMessageEvent(message: Discord.Message) {
         try {
             await Promise.all(this.commands.map(async (command) => {
@@ -124,8 +139,8 @@ export default class Client extends Discord.Client {
                     const params = Utils.createCommandParametersFromMessage(message, command.lowerCaseArgs);
 
                     // Check `cmd` is a valid `command.name` or `command.aliases`
-                    if (command.name === params.cmd
-                        || command.aliases.includes(params.cmd)) {
+                    if (command.name === params.cmd ||
+                        command.aliases.includes(params.cmd)) {
                         // Check `command.enabled` is `true`
                         if (!command.enabled) { return; }
 
@@ -133,16 +148,18 @@ export default class Client extends Discord.Client {
 
                         // Check if `command.runIn` is empty (else use `client.runIn`)
                         if (command.runIn.length !== 0) { // `command.runIn = []`?
-                            if (!command.runIn.includes(channel.name)
-                            && !command.runIn.includes(channel.type)
-                            && !command.runIn.includes(channel.id)
-                            && !command.runIn.includes("all") // `command.runIn[i] == 'all'`
-                            ) { return; }
+                            if (!command.runIn.includes(channel.name) &&
+                            !command.runIn.includes(channel.type) &&
+                            !command.runIn.includes(channel.id) &&
+                            !command.runIn.includes("all") // `command.runIn[i] == 'all'`
+                            ) {
+                                return;
+                            }
                         } else { // Check `client.runIn` values to make sure bot can run in these channels
                             // eslint-disable-next-line
-                            if (!this.runIn.includes(channel.name) // `client.runIn[i] == msg.channel.name`
-                            && !this.runIn.includes(channel.type) // `client.runIn[i] == 'dm'`
-                            && !this.runIn.includes("all") // `client.runIn[i] == 'all'`
+                            if (!this.runIn.includes(channel.name) && // `client.runIn[i] == msg.channel.name`
+                            !this.runIn.includes(channel.type) && // `client.runIn[i] == 'dm'`
+                            !this.runIn.includes("all") // `client.runIn[i] == 'all'`
                             ) { return; }
                         }
                         // Pass `client`, `utils`, and other into `command` instance as property
@@ -151,10 +168,9 @@ export default class Client extends Discord.Client {
                         if (params.args.length > 0 && params.args[0] === "help") {
                             await command.helper.sendMessageByIdToChannel(message.channel as Discord.TextChannel, command.helpMessageInfo);
                             return;
-                        } else {
-                            // Call `command.run()` method
-                            await command.run(message, params);
                         }
+                        // Call `command.run()` method
+                        await command.run(message, params);
                     }
                 } catch (error) {
                     await this._log(error);
@@ -176,10 +192,10 @@ export default class Client extends Discord.Client {
                     if (!monitor.enabled) { return; }
 
                     if (monitor.runIn.length !== 0) {
-                        if (monitor.runIn.includes((message.channel as Discord.TextChannel).name)
-                        || monitor.runIn.includes(message.channel.type)
-                        || monitor.runIn.includes(message.channel.id)
-                        || monitor.runIn.includes("all")) {
+                        if (monitor.runIn.includes((message.channel as Discord.TextChannel).name) ||
+                        monitor.runIn.includes(message.channel.type) ||
+                        monitor.runIn.includes(message.channel.id) ||
+                        monitor.runIn.includes("all")) {
                             this.setGoodies<Monitor>(monitor);
                             await monitor.run(message);
                         }
@@ -200,7 +216,7 @@ export default class Client extends Discord.Client {
             if (this.events.length === 0) { return; }
 
             // Check for `this.events` which has a property called `type = '<MemberEventType>'`
-            await Promise.all(this.events.map(async (event) => {
+            await Promise.all(this.events.map((event) => {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
@@ -221,7 +237,7 @@ export default class Client extends Discord.Client {
             if (this.events.length === 0) { return; }
 
             // Check for `this.events` which has a property called `type = '<MemberEventType>'`
-            await Promise.all(this.events.map(async (event) => {
+            await Promise.all(this.events.map((event) => {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
@@ -242,7 +258,7 @@ export default class Client extends Discord.Client {
             if (this.events.length === 0) { return; }
 
             // Check for `this.events` which has a property called `type = '<MemberEventType>'`
-            await Promise.all(this.events.map(async (event) => {
+            await Promise.all(this.events.map((event) => {
                 // Check `event.enabled` is `true`
                 if (!event.enabled) { return; }
                 // Check for `this.events` has property `type = <MemberEventType>`
@@ -323,9 +339,9 @@ export default class Client extends Discord.Client {
     private load<T>(moduleDirName: string): T[] {
         const instances: T[] = [];
         try {
-            const appDirName = this.clientOptions.appDirName;
+            const { appDirName } = this.clientOptions;
             const dirContents = fs.readdirSync(path.join(appDirName));
-            const paths = dirContents.map(content => path.join(appDirName, content));
+            const paths = dirContents.map((content) => path.join(appDirName, content));
 
             let dirPath = "";
             for (const p of paths) {
@@ -337,17 +353,17 @@ export default class Client extends Discord.Client {
             if (dirPath === "") { return instances; }
 
             const filePaths = fs.readdirSync(dirPath)
-                .filter(dirContent => fs.statSync(path.join(dirPath, dirContent)).isFile()
-                && path.extname(path.join(dirPath, dirContent)) === ".js")
-                .map(jsFile => path.join(dirPath, jsFile));
+                .filter((dirContent) => fs.statSync(path.join(dirPath, dirContent)).isFile() &&
+                path.extname(path.join(dirPath, dirContent)) === ".js")
+                .map((jsFile) => path.join(dirPath, jsFile));
 
-            const ctors: Record<string, any> = {};
+            const Ctors: Record<string, any> = {};
             for (const filePath of filePaths) {
-                ctors[path.basename(filePath).replace(".js", "")] = require(filePath).default;
+                Ctors[path.basename(filePath).replace(".js", "")] = require(filePath).default;
             }
 
-            for (const ctor of Object.values(ctors)) {
-                instances.push(new ctor());
+            for (const Ctor of Object.values(Ctors)) {
+                instances.push(new Ctor());
             }
 
             return instances;
@@ -365,7 +381,6 @@ export default class Client extends Discord.Client {
             runner.helper.init();
             runner.log = new Logger(this);
             runner.log.setRunner(runner);
-        // runner.channelsByCategoryMap = this.helper.channelsByCategoryMap;
         } catch (error) {
             this._log(error);
         }
@@ -384,10 +399,11 @@ export default class Client extends Discord.Client {
                 throw new Error("Tried to send error message to error logs channel, but guild is null.");
             }
 
-            (await this.guild
+            const channel = await this
+                .guild
                 .channels
-                .find((c: Discord.TextChannel) => c.name === this.configs.channels.errorLogs) as Discord.TextChannel)
-                .send(`${data}`);
+                .find((c: Discord.GuildChannel) => c.name === this.configs.channels.errorLogs) as Discord.TextChannel;
+            await channel.send(`${data}`);
         } catch (error) {
             console.error(error);
         }

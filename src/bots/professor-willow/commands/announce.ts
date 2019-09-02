@@ -1,26 +1,14 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Command from "../../../lib/Command";
 import CommandParameters from "../../../lib/CommandParameters";
 
 export default class extends Command {
     public constructor() {
-        super({
-            name: "announce",
-            enabled: true,
-            runIn: ["test-zone", "announcement-post"],
-            description: "",
-            aliases: [],
-            lowerCaseArgs: false,
-            template: "",
-            helpMessageInfo: {
-                messageId: "616817827860709405",
-                channelName: "bot-cmd-msgs",
-                categoryName: "Dev"
-            }
-        });
+        super(runnerConfig.command.announce);
     }
 
-    public async run(message: Discord.Message, params: CommandParameters): Promise<void>  {
+    public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
         try {
             if (message.guild === null) {
                 throw new Error("`message.guild` is null.");
@@ -31,14 +19,16 @@ export default class extends Command {
                 throw new Error("`channelToSend` is `undefined`.");
             }
 
-            let memberToMention = message.mentions.members ? message.mentions.members.first() : null;
+            let memberToMention = message.mentions.members
+                ? message.mentions.members.first()
+                : null;
             if (memberToMention !== null) {
                 const guildMembers = await message.guild.members.fetch();
                 for (const arg of params.args) {
-                    memberToMention = await guildMembers
-                        .find(guildMember => guildMember.id === arg
-                            || guildMember.displayName === arg
-                            || guildMember.user.tag === arg);
+                    memberToMention = await guildMembers.
+                        find((guildMember) => guildMember.id === arg ||
+                            guildMember.displayName === arg ||
+                            guildMember.user.tag === arg);
 
                     if (memberToMention) {
                         break;
@@ -47,8 +37,8 @@ export default class extends Command {
             }
 
             const channelMessages = await message.channel.messages.fetch();
-            const messageToSend = params.args
-                .reduce((prev, curr) => (channelMessages.get(curr)
+            const messageToSend = params.args.
+                reduce((prev, curr) => (channelMessages.get(curr)
                     ? channelMessages.get(curr)
                     : prev), "");
 
@@ -65,7 +55,6 @@ export default class extends Command {
             if (memberToMention) {
                 await channelToSend.send(`${memberToMention} ^^`);
             }
-
         } catch (error) {
             await message.channel.send(error.message);
             await this.log.error(error);

@@ -1,4 +1,5 @@
 import Discord, { ReactionCollector } from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Collector from "../../../lib/Collector";
 
 enum Team {
@@ -9,19 +10,11 @@ enum Team {
 
 export default class extends Collector {
     private teamEmojis!: Record<Team, Discord.GuildEmoji>;
+
     private teamRoles!: Record<Team, Discord.Role>;
 
     public constructor() {
-        super();
-        this.name = "welcome";
-        this.enabled = true;
-        this.type = "reaction";
-        this.channel = {
-            name: "welcome",
-            categoryName: "General",
-        };
-        this.messageId = "616167304731820083";
-        this.description = "";
+        super(runnerConfig.collector.welcome);
     }
 
     private async init(): Promise<void> {
@@ -34,13 +27,14 @@ export default class extends Collector {
     public async run(message: Discord.Message): Promise<void> {
         try {
             await this.init();
-            const reactionCollector = new ReactionCollector(message, (): boolean => {
-                return true;
-            }, { dispose: true });
+            const reactionCollector = new ReactionCollector(
+                message,
+                (): boolean => true, { "dispose": true }
+            );
             reactionCollector.on("collect", this.filter);
             reactionCollector.on("remove", this.remove);
-        } catch (e) {
-            await this.log.error(e);
+        } catch (error) {
+            await this.log.error(error);
         }
     }
 
@@ -61,16 +55,24 @@ export default class extends Collector {
 
         if (reaction.emoji.name === "🇪") {
             const contentChannel = await this.helper.getChannelByNames("Dev", "test-welcome");
-            if (!(contentChannel instanceof Discord.TextChannel)) { throw new Error("Content channel for english message not found."); }
+            if (!(contentChannel instanceof Discord.TextChannel)) {
+                throw new Error("Content channel for english message not found.");
+            }
             const msgToSend = await contentChannel.messages.fetch("616001750997925898");
-            if (msgToSend.content === "") { throw new Error("English message to send is not found/empty!"); }
+            if (msgToSend.content === "") {
+                throw new Error("English message to send is not found/empty!");
+            }
             await user.send(msgToSend);
 
         } else if (reaction.emoji.name === "🇫") {
             const contentChannel = await this.helper.getChannelByNames("Dev", "test-welcome");
-            if (!(contentChannel instanceof Discord.TextChannel)) { throw new Error("Content channel for french message not found."); }
+            if (!(contentChannel instanceof Discord.TextChannel)) {
+                throw new Error("Content channel for french message not found.");
+            }
             const msgToSend = await contentChannel.messages.fetch("616001843486654464");
-            if (msgToSend.content === "") { throw new Error("French message to send is not found/empty!"); }
+            if (msgToSend.content === "") {
+                throw new Error("French message to send is not found/empty!");
+            }
             await user.send(msgToSend);
 
         } else if (this.reactionIsTeamEmojiReaction(reaction)) {
@@ -82,40 +84,44 @@ export default class extends Collector {
 
             // Get other team emojis (i.e. those that aren't the current one)
             const otherTeamEmojis = Object.values(this.teamEmojis)
-                .filter(teamEmoji => teamEmoji.name !== reaction.emoji.name);
+                .filter((teamEmoji) => teamEmoji.name !== reaction.emoji.name);
 
             // Get other team reactions other than current one attempted
             const otherTeamMsgReactions = await reaction.message.reactions
                 .filter((msgReaction) => {
-                    const otherTeamEmojisNames = otherTeamEmojis.map(e => e.name);
+                    const otherTeamEmojisNames = otherTeamEmojis.map((emoji) => emoji.name);
                     return otherTeamEmojisNames.includes(msgReaction.emoji.name);
                 });
 
             const otherTeamMsgReactionsPreviouslyReactedOrNull = await Promise
-                .all(otherTeamMsgReactions.map(async e => ((await e.users.fetch()).has(user.id) ? e : null)));
+                .all(otherTeamMsgReactions.map(async (e) => ((await e.users.fetch()).has(user.id) ? e : null)));
 
             const reactionsReactedPreviously = otherTeamMsgReactionsPreviouslyReactedOrNull
-                .filter(e => !!e);
+                .filter((e) => !!e);
 
-            const emojisReactedPreviously = reactionsReactedPreviously.map(e => e ? e.emoji : null);
+            const emojisReactedPreviously = reactionsReactedPreviously.map((e) => (e ? e.emoji : null));
             const hasReactedToOtherTeamEmoji = emojisReactedPreviously.length > 0;
 
             // If user already reacted to any of the other two emojis
             if (hasReactedToOtherTeamEmoji) {
                 // 1. Unreact the other emoji
-                await Promise.all(reactionsReactedPreviously.map(async e => {
-                    if (e === null) { return; }
+                await Promise.all(reactionsReactedPreviously.map(async (e) => {
+                    if (e === null) {
+                        return;
+                    }
                     await e.users.remove(user.id);
-                    return;
+
                 }));
 
                 // 2. Remove the other team role associated with other emoji
-                await Promise.all(emojisReactedPreviously.map(async e => {
-                    if (e === null) { return; }
-                    const teamRole = this.teamRoles[this.getTeamFromName(e.name)];
+                await Promise.all(emojisReactedPreviously.map(async (emoji) => {
+                    if (emoji === null) {
+                        return;
+                    }
+                    const teamRole = this.teamRoles[this.getTeamFromName(emoji.name)];
                     if (teamRole) {
                         await member.roles.remove(teamRole.id);
-                    };
+                    }
                 }));
 
                 // 3. Add new role
@@ -124,14 +130,11 @@ export default class extends Collector {
                 // 1. Add associated team role
                 member.roles.add(teamRoleToAddOrRemove.id);
             }
-
         } else { // Bogus emoji react, remove all
-            // Get all users from reaction
             const users = await reaction.users.fetch();
-            await Promise.all(users.map(e => {
+            await Promise.all(users.map((e) => {
                 if (e === null) { return; }
                 reaction.users.remove(e);
-                return;
             }));
         }
         return true;
@@ -146,7 +149,6 @@ export default class extends Collector {
             }
             member.roles.remove(teamRole.id);
         }
-        return;
     }
 
     private getTeamFromName(teamName: string): Team {
@@ -161,10 +163,10 @@ export default class extends Collector {
             throw new Error(`Could not find team ${teamName}`);
         }
         return team;
-    };
+    }
 
-    private reactionIsTeamEmojiReaction(reaction: Discord.MessageReaction) {
+    private reactionIsTeamEmojiReaction (reaction: Discord.MessageReaction) {
         return Object.values(this.teamEmojis)
-            .some(teamEmoji => teamEmoji && teamEmoji.name === reaction.emoji.name);
+            .some((teamEmoji) => teamEmoji && teamEmoji.name === reaction.emoji.name);
     }
 }

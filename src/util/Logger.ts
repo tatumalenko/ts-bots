@@ -1,10 +1,13 @@
+/* eslint-disable no-console */
 import Discord, { MessageEmbed } from "discord.js";
 import Client from "../lib/Client";
 import Runner from "../lib/Runner";
 
 export default class Logger {
     private client: Client;
+
     private runner: Runner | null;
+
     public constructor(client: Client) {
         this.client = client;
         this.runner = null;
@@ -25,9 +28,9 @@ export default class Logger {
         }
     }
 
-    public async info(...args: (string | Error)[]) {
+    public async info(...args: (string | Error)[]): Promise<void> {
         try {
-            return await Promise.all(args.map((arg) => {
+            await Promise.all(args.map((arg) => {
                 this.logInfo(arg);
                 return true;
             }));
@@ -47,25 +50,25 @@ export default class Logger {
         }
     }
 
-    public async error(...args: (string | Error)[]) {
+    public async error(...args: (string | Error)[]): Promise<void> {
         try {
-            return await Promise.all(args.map((arg) => {
+            await Promise.all(args.map((arg) => {
                 this.logError(arg);
-                return;
             }));
         } catch (error) {
             console.error(error);
         }
     }
 
-    public async logToChannel(channelName: string, data: string | Error) {
+    public async logToChannel(channelName: string, data: string | Error): Promise<void> {
         try {
             const embed = new MessageEmbed();
 
             embed.setTitle("COLLECTED LOG");
             embed.addField("App", this.client.name);
             embed.addField("Runner", this.runner ? `${this.runner.name}.js` : "N/A");
-            embed.addField("When", new Date().toLocaleString().replace(/,|\./g, ""));
+            embed.addField("When", new Date().toLocaleString()
+                .replace(/,|\./g, ""));
             embed.addField("Message", data);
             embed.setColor(this.client.utils.randomColor());
 

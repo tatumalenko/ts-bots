@@ -1,18 +1,15 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Event from "../../../lib/Event";
 
 export default class extends Event {
     public constructor() {
-        super();
-        this.name = "guildMemberAdd";
-        this.enabled = false;
-        this.type = "guildMemberAdd";
-        this.description = "";
+        super(runnerConfig.event.guildMemberAdd);
     }
 
-    public async run(member: Discord.GuildMember): Promise<void>  {
+    public async run(member: Discord.GuildMember): Promise<void> {
         try {
-            const guild = member.guild;
+            const { guild } = member;
             if (guild === null) { throw new Error("`guild === null`"); }
             const newMemberRole = await this.helper.getRoleByName("new-member");
             await member.roles.add(newMemberRole);

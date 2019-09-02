@@ -1,16 +1,13 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Monitor from "../../../lib/Monitor";
 
 export default class extends Monitor {
-    public constructor() {
-        super();
-        this.name = "profanites";
-        this.enabled = true;
-        this.runIn = ["show-off", "rant", "moderation", "secret-treehouse", "super-secret-penthouse", "bot-testing"];
-        this.description = "";
+    public constructor () {
+        super(runnerConfig.monitor.profanities);
     }
 
-    public async run(message: Discord.Message): Promise<void> {
+    public async run (message: Discord.Message): Promise<void> {
         try {
             // Only listen to messages not coming from the bot itself
             if (this.client.user && message.member && this.client.user.id === message.member.id) {
@@ -23,14 +20,26 @@ export default class extends Monitor {
                 return;
             }
 
-            const cussWordsFrench = ["shit", "damn", "christ", "jesus", "fuck"];
-            const cussWordsEnglish = ["merde", "calisse", "tabarnak", "esti", "putain"];
-            const reactions = ["😱", "😤", "😭", "😝", "🥞"];
+            const cussWordsFrench = [
+                "shit",
+                "damn",
+                "christ",
+                "jesus",
+                "fuck"
+            ];
+            const cussWordsEnglish = [
+                "merde",
+                "calisse",
+                "tabarnak",
+                "esti",
+                "putain"
+            ];
+            const reactions = [ "😱", "😤", "😭", "😝", "🥞" ];
 
-            if (cussWordsFrench.some(word => message.content.toLowerCase().includes(word))) {
+            if (cussWordsFrench.some((word) => message.content.toLowerCase().includes(word))) {
                 await message.react(reactions[Math.floor(Math.random() * reactions.length)]);
                 await message.channel.send(cussWordsEnglish[Math.floor(Math.random() * cussWordsEnglish.length)]);
-            } else if (cussWordsEnglish.some(word => message.content.toLowerCase().includes(word))) {
+            } else if (cussWordsEnglish.some((word) => message.content.toLowerCase().includes(word))) {
                 await message.react(reactions[Math.floor(Math.random() * reactions.length)]);
                 await message.channel.send(cussWordsFrench[Math.floor(Math.random() * cussWordsFrench.length)]);
             }

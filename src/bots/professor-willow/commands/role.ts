@@ -1,49 +1,37 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Command from "../../../lib/Command";
 import CommandParameters from "../../../lib/CommandParameters";
 
 enum RoleEditAction {
-    add = "add",
-    remove = "remove"
+    Add = "add",
+    Remove = "remove",
 }
 
 enum PrivilegeRole {
-    admin = "admin",
-    mod = "mod",
-    "mega-bot" = "mega-bot",
-    bot = "bot"
+    Admin = "admin",
+    Mod = "mod",
+    MegaBot = "mega-bot",
+    Bot = "bot"
 }
 
 enum NonPrivilegeRole {
-    IV0 = "iv0-",
-    IV98 = "iv98+",
-    LVL1 = "lvl1",
-    RARE = "rare",
-    UNOWN = "unown",
-    GIBLE = "gible",
-    BIDOOF = "bidoof",
-    ROCKET = "rocket"
+    Iv0 = "iv0-",
+    Iv98 = "iv98+",
+    Lvl1 = "lvl1",
+    Rare = "rare",
+    Unown = "unown",
+    Gible = "gible",
+    Bidoof = "bidoof",
+    Rocket = "rocket"
 }
 
 export default class extends Command {
     public constructor() {
-        super({
-            name: "role",
-            enabled: true,
-            runIn: ["test-zone", "role-management", "4200-st-laurent-raid-break", "502678237302882304", "test-zone"],
-            description: "",
-            aliases: [],
-            lowerCaseArgs: false,
-            template: "",
-            helpMessageInfo: {
-                messageId: "616818963862651030",
-                channelName: "bot-cmd-msgs",
-                categoryName: "Dev"
-            }
-        });
+        super(runnerConfig.command.role);
     }
 
-    public async run(message: Discord.Message, params: CommandParameters): Promise<void>  {
+    public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
         let infoMsg: Discord.Message | null = null;
         try {
             infoMsg = await this.helper.getMessageById({
@@ -69,7 +57,9 @@ export default class extends Command {
             let roleMember: Discord.GuildMember | undefined;
 
             for (const arg of params.args) {
-                if (Object.keys(RoleEditAction).includes(arg)) {
+                if (Object.values(RoleEditAction)
+                    .map((e) => e.toString())
+                    .includes(arg)) {
                     roleToEditAction = arg;
                     break;
                 }
@@ -92,7 +82,9 @@ export default class extends Command {
             }
 
             if (!roleToEditAction) {
-                throw new Error(`You must supply an action name as an argument. One of ${Object.keys(RoleEditAction).map(e => `\`${e}\``).join(", ")}`);
+                throw new Error(`You must supply an action name as an argument. One of ${
+                    Object.values(RoleEditAction).map((e): string => `\`${e}\``).
+                        join(", ")}`);
             }
 
             // If the role cannot be found.
@@ -101,8 +93,12 @@ export default class extends Command {
             }
 
             // Prevent trying to edit a privileged role when member has none of them.
-            if (Object.keys(PrivilegeRole).some(forbiddenRoleName => roleToEdit && forbiddenRoleName === roleToEdit.name)
-                && !message.member.roles.some(role => Object.keys(PrivilegeRole).includes(role.name))) {
+            if (Object.values(PrivilegeRole).
+                some((forbiddenRoleName): boolean => !!roleToEdit &&
+                    forbiddenRoleName === roleToEdit.name,) &&
+                    !message.member.roles.some((role) => Object.values(PrivilegeRole)
+                        .map((e) => e.toString())
+                        .includes(role.name))) {
                 throw new Error("You do not have permission for this command! You n'avez pas la permissions d'utiliser cette commande!");
             }
 
@@ -115,8 +111,10 @@ export default class extends Command {
             }
 
             // Prevent trying to edit someone else's role when they have no priviledged role.
-            if (!message.member.roles.some(role => Object.keys(PrivilegeRole).includes(role.name))
-                    && message.member.id !== roleMember.id) {
+            if (!message.member.roles.some((role) => Object.values(PrivilegeRole)
+                .map((e) => e.toString())
+                .includes(role.name)) &&
+                message.member.id !== roleMember.id) {
                 throw new Error("You do not have permission for this command! You n'avez pas la permissions d'utiliser cette commande!");
             }
 
@@ -126,26 +124,26 @@ export default class extends Command {
 
             // If in high-iv-alerts, can only edit non priviledged roles.
             const allowedRoleNames = Object.values(NonPrivilegeRole);
-            if (message.channel.name === "💥high-iv-alerts💥"
-                && !allowedRoleNames.some(allowedRoleName => roleToEdit && roleToEdit.name === allowedRoleName)) {
+            if (message.channel.name === "💥high-iv-alerts💥" &&
+                !allowedRoleNames.some((allowedRoleName) => !!roleToEdit && roleToEdit.name === allowedRoleName)) {
                 throw new Error("💥Not a valid role name.💥");
             }
 
             let okMsg: string;
             switch (roleToEditAction.toLowerCase()) {
-                case RoleEditAction.add.toString():
-                    await roleMember.roles.add(roleToEdit);
-                    okMsg = `Got it! Assigned ${roleToEdit.name} role to ${roleMember.displayName}.`;
-                    break;
+            case RoleEditAction.Add.toString():
+                await roleMember.roles.add(roleToEdit);
+                okMsg = `Got it! Assigned ${roleToEdit.name} role to ${roleMember.displayName}.`;
+                break;
 
-                case RoleEditAction.remove.toString():
-                    await roleMember.roles.remove(roleToEdit);
-                    okMsg = `Got it! Removed ${roleToEdit.name} role to ${roleMember.displayName}.`;
-                    break;
+            case RoleEditAction.Remove.toString():
+                await roleMember.roles.remove(roleToEdit);
+                okMsg = `Got it! Removed ${roleToEdit.name} role to ${roleMember.displayName}.`;
+                break;
 
-                default:
-                    okMsg = "Oops. Something went wrong, no roles were edited.";
-                    break;
+            default:
+                okMsg = "Oops. Something went wrong, no roles were edited.";
+                break;
             }
             await message.channel.send(okMsg);
             this.log.info(okMsg);
@@ -153,9 +151,9 @@ export default class extends Command {
         } catch (error) {
             await message.channel.send(error.message);
 
-            if (message.channel instanceof Discord.TextChannel
-                && message.channel.name === "💥high-iv-alerts💥"
-                && infoMsg !== null) {
+            if (message.channel instanceof Discord.TextChannel &&
+                message.channel.name === "💥high-iv-alerts💥" &&
+                infoMsg !== null) {
                 await message.channel.send(infoMsg);
             } else {
                 await this.help(message.channel as Discord.TextChannel);

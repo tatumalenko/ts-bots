@@ -1,23 +1,11 @@
 import Discord from "discord.js";
+import runnerConfig from "../../../config/runner";
 import Command from "../../../lib/Command";
 import CommandParameters from "../../../lib/CommandParameters";
 
 export default class extends Command {
     public constructor() {
-        super({
-            name: "react",
-            enabled: true,
-            runIn: ["announcement-post"],
-            description: "",
-            aliases: [],
-            lowerCaseArgs: false,
-            template: "",
-            helpMessageInfo: {
-                messageId: "617260497141760000",
-                channelName: "bot-cmd-msgs",
-                categoryName: "Dev"
-            }
-        });
+        super(runnerConfig.command.react);
     }
 
     public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
