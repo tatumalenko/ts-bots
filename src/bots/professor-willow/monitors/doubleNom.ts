@@ -18,7 +18,7 @@ export default class extends Monitor {
             if (message.member && message.member.id !== dnId) {
                 return;
             }
-            const reactions = [ "🌶", "🥵", "🥛" ];
+            const reactions = [ "🌶", "🥛", "604468664024039454" ];
             await Promise.all(reactions.map((e) => message.react(e)));
         } catch (error) {
             await this.log.error(error);
