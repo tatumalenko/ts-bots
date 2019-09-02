@@ -13,12 +13,13 @@ export default class extends Command {
             if (message.guild === null) {
                 throw new Error("`message.guild` is null.");
             }
-            if (params.args[0] === undefined) {
+            const [ unit, days ] = params.args;
+            if (unit === undefined) {
                 message.channel.send(`There are **${message.guild.memberCount}** members currently onboard!`);
-            } else if (params.args[0] === "days" && params.args[1] !== undefined) {
+            } else if (unit === "days" && params.args[1] !== undefined) {
                 const { guild } = message;
                 let newMembers = 0;
-                const [ days ] = params.args;
+
                 const daysMs = Number(days) * 24 * 60 * 60 * 1000;
                 const hours = Number(days) * 24;
 
