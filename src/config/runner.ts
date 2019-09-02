@@ -152,7 +152,7 @@ const monitorConfigs = {
 
 const guildMemberAdd: EventConfig = {
     name: "guildMemberAdd",
-    enabled: true,
+    enabled: false,
     type: MemberEventType.guildMemberAdd,
     description: ""
 };
