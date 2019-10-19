@@ -1,4 +1,5 @@
 import Discord, { ReactionCollector } from "discord.js";
+import MessageIds from "../../../config/MessageIds";
 import runnerConfig from "../../../config/runner";
 import Collector from "../../../lib/Collector";
 
@@ -58,7 +59,7 @@ export default class extends Collector {
             if (!(contentChannel instanceof Discord.TextChannel)) {
                 throw new Error("Content channel for english message not found.");
             }
-            const msgToSend = await contentChannel.messages.fetch("616001750997925898");
+            const msgToSend = await contentChannel.messages.fetch(MessageIds.WelcomeDMEnglishOutput);
             if (msgToSend.content === "") {
                 throw new Error("English message to send is not found/empty!");
             }
@@ -69,7 +70,7 @@ export default class extends Collector {
             if (!(contentChannel instanceof Discord.TextChannel)) {
                 throw new Error("Content channel for french message not found.");
             }
-            const msgToSend = await contentChannel.messages.fetch("616001843486654464");
+            const msgToSend = await contentChannel.messages.fetch(MessageIds.WelcomeDMFrenchOutput);
             if (msgToSend.content === "") {
                 throw new Error("French message to send is not found/empty!");
             }

@@ -1,4 +1,5 @@
 import Discord from "discord.js";
+import MessageIds from "../../../config/MessageIds";
 import runnerConfig from "../../../config/runner";
 import Command from "../../../lib/Command";
 import CommandParameters from "../../../lib/CommandParameters";
@@ -11,7 +12,7 @@ export default class extends Command {
     public async run(message: Discord.Message, params: CommandParameters): Promise<void> {
         try {
             const infoMsg = await this.helper.getMessageById({
-                messageId: "599766056646737980",
+                messageId: MessageIds.MapCommandOutput,
                 categoryName: "General",
                 channelName: "quest-raid-iv-map"
             });

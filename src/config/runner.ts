@@ -3,6 +3,7 @@ import CollectorConfig from "../lib/CollectorConfig";
 import CommandConfig from "../lib/CommandConfig";
 import EventConfig from "../lib/EventConfig";
 import MonitorConfig from "../lib/MonitorConfig";
+import MessageIds from "./MessageIds";
 
 const announce: CommandConfig = {
     name: "announce",
@@ -16,7 +17,7 @@ const announce: CommandConfig = {
     lowerCaseArgs: false,
     template: "",
     helpMessageInfo: {
-        messageId: "616817827860709405",
+        messageId: MessageIds.AnnounceCommandTemplate,
         channelName: "bot-cmd-msgs",
         categoryName: "Dev"
     }
@@ -31,7 +32,7 @@ const clear: CommandConfig = {
     lowerCaseArgs: false,
     template: "",
     helpMessageInfo: {
-        messageId: "616819406433026059",
+        messageId: MessageIds.ClearCommandTemplate,
         channelName: "bot-cmd-msgs",
         categoryName: "Dev"
     }
@@ -52,7 +53,7 @@ const count: CommandConfig = {
     lowerCaseArgs: false,
     template: "",
     helpMessageInfo: {
-        messageId: "616819790463500289",
+        messageId: MessageIds.CountCommandTemplate,
         channelName: "bot-cmd-msgs",
         categoryName: "Dev"
     }
@@ -70,7 +71,7 @@ const map: CommandConfig = {
     lowerCaseArgs: false,
     template: "",
     helpMessageInfo: {
-        messageId: "617189124209639454",
+        messageId: MessageIds.MapCommandTemplate,
         channelName: "bot-cmd-msgs",
         categoryName: "Dev"
     }
@@ -85,7 +86,7 @@ const react: CommandConfig = {
     lowerCaseArgs: false,
     template: "",
     helpMessageInfo: {
-        messageId: "617260497141760000",
+        messageId: MessageIds.ReactCommandTemplate,
         channelName: "bot-cmd-msgs",
         categoryName: "Dev"
     }
@@ -106,7 +107,7 @@ const role: CommandConfig = {
     lowerCaseArgs: false,
     template: "",
     helpMessageInfo: {
-        messageId: "616818963862651030",
+        messageId: MessageIds.RoleCommandTemplate,
         channelName: "bot-cmd-msgs",
         categoryName: "Dev"
     }
@@ -210,7 +211,7 @@ const welcome: CollectorConfig = {
         name: "welcome",
         categoryName: "General"
     },
-    messageId: "616167304731820083",
+    messageId: MessageIds.WelcomeCollector,
     description: ""
 };
 

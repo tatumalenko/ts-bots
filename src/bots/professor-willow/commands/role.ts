@@ -1,7 +1,9 @@
 import Discord from "discord.js";
+import MessageIds from "../../../config/MessageIds";
 import runnerConfig from "../../../config/runner";
 import Command from "../../../lib/Command";
 import CommandParameters from "../../../lib/CommandParameters";
+import ConfigParser from "../../../util/ConfigParser";
 
 enum RoleEditAction {
     Add = "add",
@@ -35,7 +37,7 @@ export default class extends Command {
         let infoMsg: Discord.Message | null = null;
         try {
             infoMsg = await this.helper.getMessageById({
-                messageId: "617267758140358676",
+                messageId: MessageIds.RoleCommandInfo,
                 categoryName: "Dev",
                 channelName: "bot-cmd-msgs"
             });
@@ -123,7 +125,7 @@ export default class extends Command {
             }
 
             // If in high-iv-alerts, can only edit non priviledged roles.
-            const allowedRoleNames = Object.values(NonPrivilegeRole);
+            const allowedRoleNames = await ConfigParser.publicRoles(await this.helper.getChannelByNames("Dev", "bot-config-msgs"));
             if (message.channel.name === "💥high-iv-alerts💥" &&
                 !allowedRoleNames.some((allowedRoleName) => !!roleToEdit && roleToEdit.name === allowedRoleName)) {
                 throw new Error("💥Not a valid role name.💥");
