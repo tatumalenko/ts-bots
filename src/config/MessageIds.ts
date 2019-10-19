@@ -17,7 +17,7 @@ enum MessageIds {
     RoleCommandInfo = "635133920723206160",
 
     // COLLETORS
-    WelcomeCollector = "616167304731820083",
+    WelcomeCollector = "635170721592508436",
 
     // CONFIGS
     RoleConfig = "635138806294642701"
