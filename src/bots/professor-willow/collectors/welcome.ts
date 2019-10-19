@@ -32,6 +32,10 @@ export default class extends Collector {
                 message,
                 (): boolean => true, { "dispose": true }
             );
+            const iddd: string = MessageIds.WelcomeCollector;
+            this.log.info(`WelcomeCollector: ${iddd}`);
+            this.log.info(`Message: ${message}`);
+
             reactionCollector.on("collect", this.filter);
             reactionCollector.on("remove", this.remove);
         } catch (error) {
