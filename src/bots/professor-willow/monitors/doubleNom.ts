@@ -20,7 +20,7 @@ export default class extends Monitor {
             }
             // Add a random probability of responding
             const randNumber = Math.random();
-            const shouldReply = randNumber > 0.1 && randNumber < 0.4;
+            const shouldReply = randNumber > 0.1 && randNumber < 0.15;
             if (!shouldReply) { return; }
 
             const reactions = [ "🌶", "🥛", "604468664024039454" ];
