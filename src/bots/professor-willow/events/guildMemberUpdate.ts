@@ -31,7 +31,7 @@ export default class extends Event {
                 if (!teamRole) {
                     throw new Error("`!teamRole === true`");
                 }
-                const logMsg = `**${newStateMember.displayName}** selected team ${teamRole}`;
+                const logMsg = `**${newStateMember.displayName}** selected team ${teamRole.name.replace("@", "")}`;
                 await newStateMember.roles.remove(newMemberRole);
                 await systemMessagesChannel.send(logMsg);
                 await this.log.info(logMsg);
