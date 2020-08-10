@@ -125,7 +125,7 @@ export default class Client extends Discord.Client {
             if (someCommandShouldRun) { await this.commandMessageEvent(message); }
 
             if (this.monitors.length > 0) {
-                const someMonitorShouldRun = this.monitors.some((monitor) => monitor.runIn.includes((message.channel as Discord.TextChannel).name));
+                const someMonitorShouldRun = this.monitors.some((monitor) => monitor.runIn.includes((message.channel as Discord.TextChannel).name) || monitor.runIn.includes("all"));
                 if (someMonitorShouldRun) { await this.monitorMessageEvent(message); }
                 return;
             }

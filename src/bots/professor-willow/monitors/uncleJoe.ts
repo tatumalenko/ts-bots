@@ -14,7 +14,7 @@ export default class extends Monitor {
                 return;
             }
             const userId = "162719490004615168";
-            // Only listen to messages from DoubleNom
+            // Only listen to messages from Uncle Joe
             if (message.member && message.member.id !== userId) {
                 return;
             }
