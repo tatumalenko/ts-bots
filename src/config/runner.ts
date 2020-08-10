@@ -154,10 +154,18 @@ const doubleNom: MonitorConfig = {
     description: ""
 };
 
+const uncleJoe: MonitorConfig = {
+    name: "uncleJoe",
+    enabled: true,
+    runIn: [ "all" ],
+    description: ""
+};
+
 const monitorConfigs = {
     cpCountingGame,
     profanities,
-    doubleNom
+    doubleNom,
+    uncleJoe
 };
 
 const guildMemberAdd: EventConfig = {

@@ -2,18 +2,11 @@
 {
   "typescript.validate.enable": true,
   "typescript.preferences.importModuleSpecifier": "relative",
-  "eslint.autoFixOnSave": true,
-  "eslint.validate": [
-    "javascript",
-    {
-      "language": "typescript",
-      "autoFix": true
-    }
-  ],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.tslint": true,
-    "source.organizeImports": true
+    "source.organizeImports": true,
+    "source.fixAll.eslint": true
   },
   "[javascript]": {
     "editor.formatOnSave": false
@@ -31,8 +24,6 @@
     "**/coverge": true
   },
   "typescript.referencesCodeLens.enabled": true,
-  "appService.zipIgnorePattern": [
-    ".vscode{,/**}"
-  ],
+  "appService.zipIgnorePattern": [".vscode{,/**}"],
   "appService.deploySubpath": ""
 }
