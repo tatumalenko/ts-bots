@@ -23,7 +23,7 @@ export default class extends Monitor {
             const shouldReply = randNumber > 0.1 && randNumber < 0.2;
             if (!shouldReply) { return; }
 
-            const reactions = [ "742404124057927760" ];
+            const reactions = [ "718223792786112584" ];
             await Promise.all(reactions.map((e) => message.react(e)));
         } catch (error) {
             await this.log.error(error);
