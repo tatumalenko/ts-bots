@@ -9,22 +9,20 @@ export default class extends Monitor {
 
     public async run (message: Discord.Message): Promise<void> {
         try {
-            // Only listen to messages not coming from the bot itself
-            if (this.client.user && message.member && this.client.user.id === message.member.id) {
-                return;
-            }
             const dnId = "284783755644764161";
+            
             // Only listen to messages from DoubleNom
-            if (message.member && message.member.id !== dnId) {
-                return;
+            if (!(message.member && message.member.id === dnId)) {
+                return
             }
+
             // Add a random probability of responding
             const randNumber = Math.random();
             const shouldReply = randNumber > 0.1 && randNumber < 0.15;
             if (!shouldReply) { return; }
 
             const reactions = [ "🌶", "🥛", "604468664024039454" ];
-            await Promise.all(reactions.map((e) => message.react(e)));
+            await Promise.all(reactions.map((e) => message.react(e)));        
         } catch (error) {
             await this.log.error(error);
         }
