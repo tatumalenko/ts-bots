@@ -21,7 +21,7 @@
     "debug": "npm run build && npm run watch-debug"
   },
   "dependencies": {
-    "acorn": "^7.0.0",
+    "acorn": "^7.1.1",
     "axios": "^0.19.0",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "git://github.com/discordjs/discord.js.git#4c088123026e520f46cb4ee21bb90140d2501215",
